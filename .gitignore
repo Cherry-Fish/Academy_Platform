@@ -1,0 +1,30 @@
+# ===== Backend =====
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.log
+*.log
+
+# ===== Frontend =====
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Secrets (로컬 환경변수) =====
+.env
+*.env
+
+# ===== Claude Code =====
+.claude/

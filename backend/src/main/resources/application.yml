@@ -1,0 +1,122 @@
+spring:
+  application:
+    name: academy-platform-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/academy}
+    username: ${DB_USERNAME:academy}
+    password: ${DB_PASSWORD:academy}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+mattermost:
+  api-url: http://hyunssoo.asuscomm.com:8065/api/v4
+  admin-token: ${MATTERMOST_ADMIN_TOKEN:}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:academy-platform-development-secret-key-change-me-2026}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+academy:
+  auth:
+    users:
+      - username: leeminkwon
+        role: student
+        name: 이민권
+        email: acvus@naver.com
+        academyName: 스타토치 아카데미
+        courses:
+          - courseId: course-java
+            courseName: Java 기초반
+          - courseId: course-db
+            courseName: 데이터베이스
+        schedules:
+          - courseId: course-java
+            courseName: Java 기초반
+            dayOfWeek: MON
+            startTime: "18:00"
+            endTime: "20:00"
+            classType: offline
+          - courseId: course-db
+            courseName: 데이터베이스
+            dayOfWeek: THU
+            startTime: "19:00"
+            endTime: "21:00"
+            classType: online
+      - username: minji
+        role: student
+        name: 김민지
+        email: minji@example.com
+        academyName: 스타토치 아카데미
+        courses:
+          - courseId: course-java
+            courseName: Java 기초반
+        schedules:
+          - courseId: course-java
+            courseName: Java 기초반
+            dayOfWeek: MON
+            startTime: "18:00"
+            endTime: "20:00"
+            classType: offline
+      - username: dohyun
+        role: student
+        name: 박도현
+        email: dohyun@example.com
+        academyName: 스타토치 아카데미
+        courses:
+          - courseId: course-web
+            courseName: 웹프로그래밍
+          - courseId: course-java
+            courseName: Java 기초반
+        schedules:
+          - courseId: course-web
+            courseName: 웹프로그래밍
+            dayOfWeek: MON
+            startTime: "19:00"
+            endTime: "21:00"
+            classType: online
+          - courseId: course-java
+            courseName: Java 기초반
+            dayOfWeek: WED
+            startTime: "18:30"
+            endTime: "20:30"
+            classType: offline
+      - username: sujin
+        role: student
+        name: 이수진
+        email: sujin@example.com
+        academyName: 스타토치 아카데미
+        courses:
+          - courseId: course-web
+            courseName: 웹프로그래밍
+        schedules:
+          - courseId: course-web
+            courseName: 웹프로그래밍
+            dayOfWeek: MON
+            startTime: "19:00"
+            endTime: "21:00"
+            classType: online

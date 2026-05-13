@@ -1,0 +1,39 @@
+{
+  "auth": {
+    "token": "test-token-12345",
+    "userType": "student",
+    "userId": "20240001",
+    "name": "홍길동"
+  },
+  "attendance": [
+    {
+      "id": 1,
+      "timestamp": "2024-01-15T09:00:00Z",
+      "status": "success",
+      "deviceInfo": {}
+    }
+  ],
+  "pendingRequests": [
+    {
+      "id": 1,
+      "studentId": "20240001",
+      "studentName": "홍길동",
+      "email": "hong@example.com",
+      "requestTime": "2024-01-15T10:00:00Z",
+      "currentDeviceInfo": {
+        "userAgent": "Mozilla/5.0...",
+        "platform": "Win32"
+      }
+    }
+  ],
+  "attendanceRecords": [
+    {
+      "id": 1,
+      "studentId": "20240001",
+      "studentName": "홍길동",
+      "timestamp": "2024-01-15T09:00:00Z",
+      "status": "success",
+      "isNewDevice": false
+    }
+  ]
+}

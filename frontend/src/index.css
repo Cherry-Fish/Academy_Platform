@@ -1,0 +1,1065 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  color-scheme: light dark;
+  --rail: #0d0f12;
+  --sidebar: #161920;
+  --sidebar-soft: #121418;
+  --sidebar-hover: rgba(255,255,255,0.06);
+  --sidebar-active-bg: rgba(108, 99, 255, 0.22);
+  --bg: #f4f4f6;
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-solid: #ffffff;
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 226, 234, 0.9);
+  --line: rgba(226, 226, 234, 0.8);
+  --content-line: rgba(226, 226, 234, 0.7);
+  --text-light: #1a1740;
+  --text-muted: #64748b;
+  --primary: #6c63ff;
+  --primary-dark: #5a52e0;
+  --primary-glow: rgba(108, 99, 255, 0.35);
+  --secondary: #a78bfa;
+  --danger: #e05252;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --shadow-sm: 0 2px 8px rgba(108, 99, 255, 0.08);
+  --shadow-md: 0 8px 28px rgba(108, 99, 255, 0.12);
+  --shadow-lg: 0 20px 50px rgba(30, 20, 80, 0.14);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Pretendard', 'SUIT', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-light);
+  background: #0d0f12;
+}
+
+button, input, textarea {
+  font: inherit;
+}
+
+/* ─── APP SHELL ─────────────────────────────────────── */
+.discord-app-shell {
+  height: 100vh;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 72px 268px 1fr;
+  background: var(--rail);
+  overflow: hidden;
+}
+
+/* ─── SERVER RAIL ────────────────────────────────────── */
+.server-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0;
+  background: var(--rail);
+  min-height: 0;
+}
+
+.server-rail-brand {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 17px;
+  color: white;
+  background: linear-gradient(135deg, #a78bfa 0%, #6c63ff 60%, #4f46e5 100%);
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.server-rail-brand:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(108, 99, 255, 0.6);
+}
+
+.server-rail-stack {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  flex: 1;
+  width: 100%;
+  padding: 0 13px;
+}
+
+.server-node {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 14px;
+  background: #1e2128;
+  color: #94a3b8;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.server-node::before {
+  content: '';
+  position: absolute;
+  left: -13px;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 4px;
+  height: 60%;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+  transition: transform 0.2s ease;
+}
+
+.server-node:hover {
+  border-radius: 16px;
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+
+.server-node.is-active {
+  border-radius: 16px;
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+.server-node.is-active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+/* ─── CHANNEL SIDEBAR ────────────────────────────────── */
+.channel-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--sidebar);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.channel-sidebar-header {
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sidebar-soft);
+}
+
+.channel-sidebar-kicker {
+  margin: 0 0 6px;
+  color: #7c6df7;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.channel-sidebar-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+}
+
+.channel-sidebar-section {
+  padding: 16px 10px 0;
+  flex: 0 0 auto;
+}
+
+.channel-sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.channel-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.channel-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.channel-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+.channel-sidebar-label {
+  padding: 0 8px 8px;
+  color: #4a5568;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.channel-nav {
+  display: grid;
+  gap: 2px;
+}
+
+.channel-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.channel-link:hover {
+  background: var(--sidebar-hover);
+  color: #c4c9d4;
+}
+
+.channel-link.is-active {
+  background: var(--sidebar-active-bg);
+  color: #c7c2ff;
+  font-weight: 600;
+}
+
+.channel-link.is-active .channel-link-prefix {
+  color: #8f87ff;
+}
+
+.channel-link-prefix {
+  color: #374151;
+  font-size: 16px;
+  font-weight: 700;
+  transition: color 0.15s;
+}
+
+/* ─── SIDEBAR FOOTER ─────────────────────────────────── */
+.channel-sidebar-footer {
+  margin-top: auto;
+  padding: 14px 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: #0f1115;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #f472b6 0%, #a78bfa 50%, #6c63ff 100%);
+  color: white;
+  font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(167, 139, 250, 0.4);
+}
+
+.profile-meta {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.profile-meta strong {
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-meta span {
+  color: #4a5568;
+  font-size: 12px;
+}
+
+.profile-settings-button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: #1e2128;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-settings-button:hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 12px var(--primary-glow);
+  transform: rotate(30deg);
+}
+
+.profile-settings-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.sidebar-logout {
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+/* ─── MAIN PANEL ─────────────────────────────────────── */
+.discord-main-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f4f4f6;
+}
+
+.content-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 28px;
+  background: #ffffff;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--content-line);
+}
+
+.content-kicker {
+  margin: 0 0 4px;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.content-title {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.content-topbar-badge {
+  max-width: 400px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(108,99,255,0.08) 0%, rgba(167,139,250,0.08) 100%);
+  border: 1px solid rgba(108, 99, 255, 0.15);
+  color: #4a4480;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.discord-content-body {
+  flex: 1;
+  padding: 24px 28px;
+  overflow: auto;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 99, 255, 0.2) transparent;
+}
+
+.discord-content-body::-webkit-scrollbar {
+  width: 6px;
+}
+.discord-content-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.discord-content-body::-webkit-scrollbar-thumb {
+  background: rgba(108, 99, 255, 0.2);
+  border-radius: 6px;
+}
+
+/* ─── BUTTONS ────────────────────────────────────────── */
+.ghost-button,
+.primary-button {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.ghost-button {
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.ghost-button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+  color: white;
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ─── CARDS ──────────────────────────────────────────── */
+.dashboard-card {
+  background: #ffffff;
+  border: 1px solid #e8e8ee;
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ─── TYPOGRAPHY ─────────────────────────────────────── */
+.section-heading {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-light);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-heading {
+  margin: 0 0 12px;
+}
+
+.login-description,
+.dashboard-description,
+.muted-text {
+  color: var(--text-muted);
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+/* ─── TABLES ─────────────────────────────────────────── */
+.soft-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.soft-table th {
+  padding: 10px 14px;
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--content-line);
+}
+
+.soft-table td {
+  padding: 13px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(209, 213, 255, 0.35);
+  font-size: 14px;
+  color: #334155;
+  transition: background 0.15s;
+}
+
+.soft-table tr:last-child td {
+  border-bottom: none;
+}
+
+.soft-table tbody tr:hover td {
+  background: rgba(108, 99, 255, 0.04);
+}
+
+/* ─── STATUS PILLS ───────────────────────────────────── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ─── LOGIN PAGE ─────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: #f4f4f6;
+}
+
+.login-shell {
+  width: min(100%, 1080px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px #e8e8ee;
+}
+
+.login-card {
+  min-height: 520px;
+}
+
+.login-card-form {
+  padding: 56px 52px 48px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-card-visual {
+  background: linear-gradient(145deg, #ede9ff 0%, #ddd6fe 50%, #c4b5fd 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(108,99,255,0.2) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(167,139,250,0.15) 0%, transparent 60%);
+}
+
+.login-copy {
+  margin-bottom: 36px;
+}
+
+.login-title {
+  margin: 0 0 10px;
+  font-size: 42px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: var(--text-light);
+  font-weight: 800;
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field-group {
+  display: block;
+}
+
+.legacy-input-group {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #f9fafb;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.legacy-input-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 52px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 13px;
+  border-right: 1.5px solid #e2e8f0;
+  letter-spacing: 0.04em;
+}
+
+.legacy-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+  color: var(--text-light);
+}
+
+.legacy-input::placeholder {
+  color: #94a3b8;
+}
+
+.legacy-input-group:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1);
+  background: #ffffff;
+}
+
+.error-text {
+  color: var(--danger);
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.login-alert {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(224, 82, 82, 0.3);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.legacy-login-button {
+  min-width: 130px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+  box-shadow: 0 4px 20px var(--primary-glow);
+  letter-spacing: 0.01em;
+}
+
+.legacy-login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--primary-glow);
+}
+
+.legacy-login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-illustration {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── MISC ───────────────────────────────────────────── */
+.dashboard-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.dashboard-hero {
+  margin-bottom: 22px;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 960px) {
+  .discord-app-shell {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .channel-sidebar {
+    display: none;
+  }
+
+  .content-topbar {
+    padding: 16px 20px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .discord-content-body {
+    padding: 18px 20px;
+  }
+
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-card-visual {
+    min-height: 220px;
+  }
+
+  .login-card-form {
+    padding: 36px 28px 32px;
+  }
+
+  .login-title {
+    font-size: 34px;
+  }
+}
+
+/* ─── ANIMATIONS ─────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dashboard-card {
+  animation: fadeInUp 0.3s ease both;
+}
+
+.discord-main-panel {
+  animation: fadeIn 0.2s ease both;
+}
+
+/* ─── INFO CARDS (내부 서브 카드) ────────────────────── */
+.info-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e8e8ee;
+  background: #f8f8fa;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.info-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1740;
+  margin-bottom: 6px;
+}
+
+.info-card-title--lg {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1740;
+  margin-bottom: 8px;
+}
+
+.info-card-sub {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.info-card-meta {
+  color: #5a5580;
+  line-height: 1.7;
+}
+
+/* 요약 미니카드 (개요 섹션 통계) */
+.summary-mini-card {
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid #e8e8ee;
+  background: #f8f8fa;
+}
+
+.summary-mini-card--warn {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.summary-mini-card--accent {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.summary-mini-label {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.summary-mini-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1740;
+}
+
+.summary-mini-value--warn { color: #c2410c; }
+.summary-mini-value--accent { color: #4338ca; }
+
+/* ════════════════════════════════════════════════════
+   DARK MODE  [data-theme="dark"]
+════════════════════════════════════════════════════ */
+
+[data-theme="dark"] .discord-main-panel {
+  background: linear-gradient(145deg, #0d0f14 0%, #111318 50%, #0f0d17 100%);
+}
+
+[data-theme="dark"] .content-topbar {
+  background: rgba(13, 15, 20, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .content-kicker {
+  color: #a78bfa;
+}
+
+[data-theme="dark"] .content-title {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .content-topbar-badge {
+  background: linear-gradient(135deg, rgba(108,99,255,0.18), rgba(167,139,250,0.12));
+  border-color: rgba(108, 99, 255, 0.25);
+  color: #c4b5fd;
+}
+
+[data-theme="dark"] .dashboard-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .section-heading {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .muted-text {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .soft-table th {
+  color: #475569;
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .soft-table td {
+  color: #c4c9d4;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .soft-table tbody tr:hover td {
+  background: rgba(108, 99, 255, 0.08);
+}
+
+[data-theme="dark"] .status-pill {
+  filter: brightness(0.85) saturate(1.1);
+}
+
+[data-theme="dark"] .ghost-button {
+  background: rgba(255, 255, 255, 0.07);
+  color: #c4c9d4;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .ghost-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+}
+
+/* 입력 필드 */
+[data-theme="dark"] input:not([type="range"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #1a1d24 !important;
+  color: #e2e8f0 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] .legacy-input-group {
+  background: #1a1d24;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .legacy-input-icon {
+  background: #13151a;
+  color: #64748b;
+  border-right-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .legacy-input-group:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
+}
+
+/* label 텍스트 */
+[data-theme="dark"] label {
+  color: #94a3b8 !important;
+}
+
+/* pre (기기 정보) */
+[data-theme="dark"] pre {
+  color: #94a3b8 !important;
+}
+
+/* 카드 내부 일반 텍스트 — 인라인 color 상속 불가이므로 주요 패턴 직접 처리 */
+[data-theme="dark"] .discord-content-body {
+  color: #c4c9d4;
+}
+
+[data-theme="dark"] .info-card * {
+  color: inherit;
+}
+
+/* 다크모드에서 인라인 하드코딩 텍스트 색상 덮어쓰기 */
+[data-theme="dark"] .dashboard-card h4 {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .discord-content-body button:not(.legacy-login-button):not(.primary-button) {
+  color: inherit;
+}
+
+/* login 페이지 */
+[data-theme="dark"] .login-page {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(108, 99, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
+    #0d0f14;
+}
+
+[data-theme="dark"] .login-shell {
+  background: rgba(22, 25, 32, 0.95);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108,99,255,0.15);
+}
+
+[data-theme="dark"] .login-card-form {
+  background: #161920;
+}
+
+[data-theme="dark"] .login-title {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .login-description {
+  color: #64748b;
+}
+
+[data-theme="dark"] .login-card-visual {
+  background: linear-gradient(145deg, #1a1d2e 0%, #161228 50%, #0f0d1a 100%);
+}
+
+/* 내부 서브 카드 */
+[data-theme="dark"] .info-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .info-card-title,
+[data-theme="dark"] .info-card-title--lg {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .info-card-sub {
+  color: #64748b;
+}
+
+[data-theme="dark"] .info-card-meta {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .summary-mini-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .summary-mini-card--warn {
+  background: rgba(194, 65, 12, 0.15);
+  border-color: rgba(253, 186, 116, 0.2);
+}
+
+[data-theme="dark"] .summary-mini-card--accent {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+[data-theme="dark"] .summary-mini-label {
+  color: #64748b;
+}
+
+[data-theme="dark"] .summary-mini-value {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .summary-mini-value--warn { color: #fb923c; }
+[data-theme="dark"] .summary-mini-value--accent { color: #a78bfa; }
+
+[data-theme="dark"] .login-card-visual::before {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(108,99,255,0.25) 0%, transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(79,70,229,0.2) 0%, transparent 60%);
+}
+
