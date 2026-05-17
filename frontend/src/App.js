@@ -2330,11 +2330,22 @@ function StudentHome({
                     <div style={{ borderRadius: '18px', overflow: 'hidden', background: '#0f172a' }}>
                       <iframe
                         title={selectedVideo.title}
-                        src={selectedVideo.videoUrl.replace('watch?v=', 'embed/')}
+                        src={(() => {
+                          const url = selectedVideo.videoUrl || '';
+                          if (url.includes('/embed/')) return url;
+                          const short = url.match(/youtu\.be\/([^?&]+)/);
+                          if (short) return `https://www.youtube.com/embed/${short[1]}`;
+                          const watch = url.match(/[?&]v=([^&]+)/);
+                          if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
+                          return url;
+                        })()}
                         style={{ width: '100%', height: '420px', border: 'none' }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
+                    </div>
+                    <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                      <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#6366f1' }}>YouTube에서 보기 ↗</a>
                     </div>
                   </div>
                 </div>
