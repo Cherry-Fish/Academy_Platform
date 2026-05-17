@@ -1,32 +1,40 @@
 #!/usr/bin/env bash
-# 로컬 Mac에서 실행 — 빌드 결과물을 서버에 올리고 재시작
+# 서버에서 직접 실행하는 배포 스크립트
+# 사용법: bash deploy.sh
 
 set -euo pipefail
 
-SSH_HOST="hyunssoo.asuscomm.com"
-SSH_PORT="9022"
-SSH_USER="ubuntu"
-SSH="ssh -p $SSH_PORT $SSH_USER@$SSH_HOST"
-SCP="scp -P $SSH_PORT"
+APP_DIR="$HOME/Academy_Platform"
+BACKEND_DIR="$APP_DIR/backend"
+FRONTEND_DIR="$APP_DIR/frontend"
 
-JAR="$(dirname "$0")/../backend/target/academy-platform-backend-0.0.1-SNAPSHOT.jar"
-FRONTEND_BUILD="$(dirname "$0")/../frontend/build"
-MIGRATION_SQL="$(dirname "$0")/../backend/src/main/resources/db_migration.sql"
+echo "=== 1. 최신 코드 받기 ==="
+cd "$APP_DIR"
+git pull
 
-echo "=== 1. 서버 디렉토리 준비 ==="
-$SSH "sudo mkdir -p /opt/academy/frontend /etc/academy && sudo chown -R ubuntu:ubuntu /opt/academy /etc/academy"
+echo "=== 2. 프론트엔드 빌드 ==="
+cd "$FRONTEND_DIR"
+npm install --silent
+npm run build
 
-echo "=== 2. JAR 업로드 ==="
-$SCP "$JAR" "$SSH_USER@$SSH_HOST:/opt/academy/app.jar"
+echo "=== 3. 백엔드 빌드 ==="
+cd "$BACKEND_DIR"
+./mvnw package -DskipTests -q
 
-echo "=== 3. 프론트엔드 업로드 ==="
-rsync -avz --delete -e "ssh -p $SSH_PORT" "$FRONTEND_BUILD/" "$SSH_USER@$SSH_HOST:/opt/academy/frontend/"
+echo "=== 4. 백엔드 재시작 ==="
+sudo lsof -ti:8081 | xargs sudo kill -9 2>/dev/null || true
+sleep 2
 
-echo "=== 4. DB 마이그레이션 스크립트 업로드 ==="
-$SCP "$MIGRATION_SQL" "$SSH_USER@$SSH_HOST:/opt/academy/db_migration.sql"
+export MATTERMOST_ADMIN_TOKEN="${MATTERMOST_ADMIN_TOKEN:-}"
+nohup java -Djava.net.preferIPv4Stack=true -jar "$BACKEND_DIR/target/academy-platform-backend-0.0.1-SNAPSHOT.jar" \
+  > "$HOME/backend.log" 2>&1 &
 
-echo "=== 5. 서비스 재시작 ==="
-$SSH "sudo systemctl restart academy && sleep 3 && sudo systemctl status academy --no-pager"
+sleep 5
+STATUS=$(curl -s http://localhost:8081/actuator/health | grep -o '"UP"' || echo "확인 필요")
+echo "백엔드 상태: $STATUS"
+
+echo "=== 5. Nginx 재시작 ==="
+sudo systemctl restart nginx
 
 echo ""
-echo "배포 완료. http://$SSH_HOST:8080 에서 확인하세요."
+echo "배포 완료!"
