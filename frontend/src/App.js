@@ -1397,6 +1397,7 @@ function StaffHome({
   const isAdmin = userType === 'admin';
   const [expandedAssignmentId, setExpandedAssignmentId] = useState(null);
   const [viewingEntry, setViewingEntry] = useState(null);
+  const [courseStudentsCache, setCourseStudentsCache] = useState({});
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -2092,7 +2093,7 @@ function StaffHome({
                 ) : (
                   <div style={{ display: 'grid', gap: '18px' }}>
                     {filteredAssignments.map((assignment) => {
-                      const courseStudents = (studentsByCourse.find((g) => g.courseId === assignment.courseId)?.students) || [];
+                      const courseStudents = courseStudentsCache[assignment.courseId] || [];
                       const submissionsForAssignment = allSubmissions.filter((s) => s.assignmentId === assignment.id);
                       const isExpanded = expandedAssignmentId === assignment.id;
                       return (
@@ -2106,9 +2107,22 @@ function StaffHome({
                               <button
                                 type="button"
                                 className="ghost-button"
-                                onClick={() => {
-                                  setExpandedAssignmentId(isExpanded ? null : assignment.id);
-                                  setViewingEntry(null);
+                                onClick={async () => {
+                                  if (isExpanded) {
+                                    setExpandedAssignmentId(null);
+                                    setViewingEntry(null);
+                                  } else {
+                                    setExpandedAssignmentId(assignment.id);
+                                    setViewingEntry(null);
+                                    if (!courseStudentsCache[assignment.courseId]) {
+                                      try {
+                                        const res = await api.getCourseStudents(assignment.courseId);
+                                        setCourseStudentsCache((prev) => ({ ...prev, [assignment.courseId]: res.data || [] }));
+                                      } catch (e) {
+                                        setCourseStudentsCache((prev) => ({ ...prev, [assignment.courseId]: [] }));
+                                      }
+                                    }
+                                  }
                                 }}
                               >
                                 {isExpanded ? '학생 목록 닫기' : `학생 제출 현황 (${submissionsForAssignment.length}/${courseStudents.length})`}

@@ -63,4 +63,9 @@ public class TeacherController {
     public ResponseEntity<List<Map<String, Object>>> getStudents(Principal principal) {
         return ResponseEntity.ok(userDirectoryService.getStudentsForTeacher(principal.getName()));
     }
+
+    @GetMapping("/courses/{courseCode}/students")
+    public ResponseEntity<List<Map<String, Object>>> getCourseStudents(@PathVariable String courseCode) {
+        return ResponseEntity.ok(userDirectoryService.getStudentsByCourse(courseCode));
+    }
 }

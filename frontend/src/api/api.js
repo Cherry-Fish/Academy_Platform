@@ -75,6 +75,7 @@ const realApi = {
   requestDeviceChange: (payload) => apiClient.post('/device/change-request', payload),
   getPendingRequests: () => apiClient.get('/teacher/pending-requests'),
   getTeacherStudents: () => apiClient.get('/teacher/students'),
+  getCourseStudents: (courseCode) => apiClient.get(`/teacher/courses/${courseCode}/students`),
   getAdminUsers: () => apiClient.get('/admin/users'),
   createAdminUser: (payload) => apiClient.post('/admin/users', payload),
   deleteAdminUser: (username) => apiClient.delete(`/admin/users/${username}`),

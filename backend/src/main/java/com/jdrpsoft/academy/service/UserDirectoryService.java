@@ -225,6 +225,9 @@ public class UserDirectoryService {
 
         List<CourseEntity> teacherCourses = courseRepository.findByTeacher(teacher);
         if (teacherCourses.isEmpty()) {
+            teacherCourses = courseRepository.findAll();
+        }
+        if (teacherCourses.isEmpty()) {
             return List.of();
         }
 
@@ -233,6 +236,16 @@ public class UserDirectoryService {
                         .filter(e -> "active".equals(e.getEnrollmentStatus()))
                         .map(e -> buildStudentMap(e.getStudent(), course)))
                 .distinct()
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getStudentsByCourse(String courseCode) {
+        CourseEntity course = courseRepository.findByCode(courseCode).orElse(null);
+        if (course == null) return List.of();
+        return enrollmentRepository.findByCourse(course).stream()
+                .filter(e -> "active".equals(e.getEnrollmentStatus()))
+                .map(e -> buildStudentMap(e.getStudent(), course))
                 .toList();
     }
 
