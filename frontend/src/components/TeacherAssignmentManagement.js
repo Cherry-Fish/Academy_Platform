@@ -10,6 +10,7 @@ function TeacherAssignmentManagement({ currentRoom = null }) {
   const [showGradeModal, setShowGradeModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
   
   // 과제 등록 폼 데이터
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ function TeacherAssignmentManagement({ currentRoom = null }) {
 
   useEffect(() => {
     fetchAssignments();
+    fetchAllSubmissions();
   }, []);
 
   useEffect(() => {
@@ -47,12 +49,14 @@ function TeacherAssignmentManagement({ currentRoom = null }) {
   };
 
   const fetchAllSubmissions = async () => {
+    setSubmissionError(null);
     try {
       const assignmentId = selectedAssignment?.id;
       const response = await api.getAllSubmissions(assignmentId);
       setSubmissions(response.data);
     } catch (err) {
       console.error('제출물 조회 실패:', err);
+      setSubmissionError('제출물을 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.');
     }
   };
 
@@ -424,7 +428,17 @@ function TeacherAssignmentManagement({ currentRoom = null }) {
             </select>
           </div>
 
-          {submissions.length === 0 ? (
+          {submissionError ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              backgroundColor: '#f8d7da',
+              borderRadius: '10px',
+              color: '#721c24'
+            }}>
+              <p style={{ fontSize: '18px', margin: 0 }}>{submissionError}</p>
+            </div>
+          ) : submissions.length === 0 ? (
             <div style={{
               textAlign: 'center',
               padding: '60px 20px',
