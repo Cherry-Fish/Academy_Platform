@@ -313,13 +313,10 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     videoUrl: '',
     duration: '',
   });
-  const [staffAssignmentForm, setStaffAssignmentForm] = useState({
-    courseId: '',
-    courseName: '',
-    title: '',
-    description: '',
-    dueDate: '',
-    maxScore: 100,
+  const [staffAssignmentForm, setStaffAssignmentForm] = useState(() => {
+    const now = new Date();
+    now.setHours(23, 59, 0, 0);
+    return { courseId: '', courseName: '', title: '', description: '', dueDate: now.toISOString().slice(0, 16), maxScore: 100 };
   });
   const [gradingState, setGradingState] = useState({});
   const [attendanceMonth, setAttendanceMonth] = useState({
@@ -924,14 +921,11 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     try {
       const response = await api.createAssignment(staffAssignmentForm);
       setInfoMessage(`${response.data?.title || '과제'}가 등록되었습니다.`);
-      setStaffAssignmentForm((prev) => ({
-        courseId: prev.courseId,
-        courseName: prev.courseName,
-        title: '',
-        description: '',
-        dueDate: '',
-        maxScore: 100,
-      }));
+      setStaffAssignmentForm((prev) => {
+        const now = new Date();
+        now.setHours(23, 59, 0, 0);
+        return { courseId: prev.courseId, courseName: prev.courseName, title: '', description: '', dueDate: now.toISOString().slice(0, 16), maxScore: 100 };
+      });
       await loadAssignments();
       await loadAllSubmissions();
     } catch (error) {
@@ -2077,7 +2071,7 @@ function StaffHome({
                   </select>
                   <input type="text" placeholder="과제 제목" value={staffAssignmentForm.title} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
                   <textarea placeholder="과제 설명" value={staffAssignmentForm.description} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
-                  <input type="text" placeholder="마감일 예: 2026-04-07T18:00:00" value={staffAssignmentForm.dueDate} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, dueDate: event.target.value }))} style={staffInputStyle} />
+                  <input type="datetime-local" value={staffAssignmentForm.dueDate} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, dueDate: event.target.value }))} style={staffInputStyle} />
                   <input type="number" placeholder="배점" value={staffAssignmentForm.maxScore} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, maxScore: Number(event.target.value) }))} style={staffInputStyle} />
                   <div>
                     <button type="button" className="legacy-login-button" onClick={onCreateAssignment} disabled={actionLoading}>
