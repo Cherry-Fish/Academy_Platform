@@ -2,6 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { api } from '../api/api';
 
+const normalizeYouTubeUrl = (url) => {
+  if (!url) return url;
+  const patterns = [
+    /[?&]v=([^&]+)/,
+    /youtu\.be\/([^?&]+)/,
+    /youtube\.com\/embed\/([^?&]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return `https://www.youtube.com/watch?v=${match[1]}`;
+  }
+  return url;
+};
+
 function VideoPlayer({ videoId, onBack }) {
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -148,7 +162,7 @@ function VideoPlayer({ videoId, onBack }) {
       }}>
         <ReactPlayer
           ref={playerRef}
-          url={video.videoUrl}
+          url={normalizeYouTubeUrl(video.videoUrl)}
           width="100%"
           height="100%"
           style={{ position: 'absolute', top: 0, left: 0 }}
