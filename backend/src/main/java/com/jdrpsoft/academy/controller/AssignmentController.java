@@ -67,11 +67,17 @@ public class AssignmentController {
     ) {
         String username = authentication.getName();
         String mattermostUserId = authentication.getDetails() instanceof String s ? s : null;
+        Object rawName = payload.get("attachmentName");
+        Object rawData = payload.get("attachmentData");
+        String attachmentName = rawName != null ? String.valueOf(rawName) : null;
+        String attachmentData = rawData != null ? String.valueOf(rawData) : null;
         return ResponseEntity.ok(learningContentService.submitAssignment(
                 username,
                 mattermostUserId,
                 assignmentId,
-                String.valueOf(payload.getOrDefault("content", ""))
+                String.valueOf(payload.getOrDefault("content", "")),
+                attachmentName,
+                attachmentData
         ));
     }
 

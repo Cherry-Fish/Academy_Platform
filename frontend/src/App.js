@@ -291,6 +291,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [assignmentSubmission, setAssignmentSubmission] = useState(null);
   const [submissionContent, setSubmissionContent] = useState('');
+  const [submissionFile, setSubmissionFile] = useState(null);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [teacherStudents, setTeacherStudents] = useState([]);
   const [watchHistory, setWatchHistory] = useState([]);
@@ -727,8 +728,24 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
 
     setActionLoading(true);
     try {
-      const response = await api.submitAssignment(selectedAssignment.id, { content: submissionContent });
+      let attachmentName = null;
+      let attachmentData = null;
+      if (submissionFile) {
+        attachmentName = submissionFile.name;
+        attachmentData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(submissionFile);
+        });
+      }
+      const response = await api.submitAssignment(selectedAssignment.id, {
+        content: submissionContent,
+        attachmentName,
+        attachmentData,
+      });
       setAssignmentSubmission(response.data.submission || null);
+      setSubmissionFile(null);
       setInfoMessage(response.data.message || '과제가 제출되었습니다.');
     } catch (error) {
       setInfoMessage(error.response?.data?.message || error.message);
@@ -1199,6 +1216,8 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         assignmentSubmission={assignmentSubmission}
         submissionContent={submissionContent}
         setSubmissionContent={setSubmissionContent}
+        submissionFile={submissionFile}
+        setSubmissionFile={setSubmissionFile}
         infoMessage={infoMessage}
         actionLoading={actionLoading}
         contentLoading={contentLoading}
@@ -1392,7 +1411,6 @@ function StaffHome({
   const [expandedAssignmentId, setExpandedAssignmentId] = useState(null);
   const [viewingEntry, setViewingEntry] = useState(null);
   const [courseStudentsCache, setCourseStudentsCache] = useState({});
-  const [courseStudentsLoading, setCourseStudentsLoading] = useState({});
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -2113,15 +2131,12 @@ function StaffHome({
                                     setExpandedAssignmentId(assignment.id);
                                     setViewingEntry(null);
                                     const cacheKey = assignment.courseId || assignment.id;
-                                    if (!courseStudentsCache[cacheKey]) {
-                                      setCourseStudentsLoading((prev) => ({ ...prev, [cacheKey]: true }));
+                                    if (!(cacheKey in courseStudentsCache)) {
                                       try {
                                         const res = await api.getCourseStudents(assignment.courseId);
                                         setCourseStudentsCache((prev) => ({ ...prev, [cacheKey]: res.data || [] }));
                                       } catch (e) {
                                         setCourseStudentsCache((prev) => ({ ...prev, [cacheKey]: [] }));
-                                      } finally {
-                                        setCourseStudentsLoading((prev) => ({ ...prev, [cacheKey]: false }));
                                       }
                                     }
                                   }
@@ -2137,7 +2152,7 @@ function StaffHome({
 
                           {isExpanded && (
                             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '14px' }}>
-                              {courseStudentsLoading[assignment.courseId || assignment.id] ? (
+                              {!(cacheKey in courseStudentsCache) ? (
                                 <p className="muted-text" style={{ fontSize: '14px' }}>학생 목록 불러오는 중...</p>
                               ) : courseStudents.length === 0 ? (
                                 <p className="muted-text" style={{ fontSize: '14px' }}>
@@ -2179,7 +2194,23 @@ function StaffHome({
 
                                         {isViewing && submission && (
                                           <div style={{ margin: '8px 0 4px 0', padding: '16px', background: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                                            <div style={{ color: '#334155', lineHeight: 1.7, marginBottom: '16px', whiteSpace: 'pre-wrap' }}>{submission.content}</div>
+                                            <div style={{ color: '#334155', lineHeight: 1.7, marginBottom: '12px', whiteSpace: 'pre-wrap' }}>{submission.content}</div>
+                                            {submission.attachmentName && (
+                                              <div style={{ marginBottom: '16px' }}>
+                                                <button
+                                                  type="button"
+                                                  className="ghost-button"
+                                                  onClick={() => {
+                                                    const link = document.createElement('a');
+                                                    link.href = `data:application/octet-stream;base64,${submission.attachmentData}`;
+                                                    link.download = submission.attachmentName;
+                                                    link.click();
+                                                  }}
+                                                >
+                                                  첨부파일 다운로드: {submission.attachmentName}
+                                                </button>
+                                              </div>
+                                            )}
                                             <div style={{ display: 'grid', gap: '10px', maxWidth: '520px' }}>
                                               <input
                                                 type="number"
@@ -2273,6 +2304,8 @@ function StudentHome({
   assignmentSubmission,
   submissionContent,
   setSubmissionContent,
+  submissionFile,
+  setSubmissionFile,
   infoMessage,
   actionLoading,
   contentLoading,
@@ -2583,6 +2616,17 @@ function StudentHome({
                           lineHeight: 1.6,
                         }}
                       />
+                      <div>
+                        <label style={{ fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>파일 첨부 (선택)</label>
+                        <input
+                          type="file"
+                          onChange={(e) => setSubmissionFile(e.target.files[0] || null)}
+                          style={{ fontSize: '14px' }}
+                        />
+                        {submissionFile && (
+                          <span style={{ fontSize: '13px', color: '#64748b', marginLeft: '8px' }}>{submissionFile.name}</span>
+                        )}
+                      </div>
                       <button
                         type="button"
                         className="legacy-login-button"

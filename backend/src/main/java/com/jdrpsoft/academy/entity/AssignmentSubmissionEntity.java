@@ -30,6 +30,9 @@ public class AssignmentSubmissionEntity {
 
     private String content;
     private String filePath;
+    private String attachmentName;
+    @jakarta.persistence.Column(columnDefinition = "TEXT")
+    private String attachmentData;
     private LocalDateTime submittedAt;
     private Integer score;
     private String feedback;
@@ -49,6 +52,10 @@ public class AssignmentSubmissionEntity {
     public void setStudent(UserEntity student) { this.student = student; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+    public String getAttachmentName() { return attachmentName; }
+    public void setAttachmentName(String attachmentName) { this.attachmentName = attachmentName; }
+    public String getAttachmentData() { return attachmentData; }
+    public void setAttachmentData(String attachmentData) { this.attachmentData = attachmentData; }
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
     public Integer getScore() { return score; }

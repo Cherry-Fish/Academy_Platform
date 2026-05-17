@@ -235,7 +235,7 @@ public class LearningContentService {
                 .map(this::toSubmissionMap).toList();
     }
 
-    public Map<String, Object> submitAssignment(String username, String mattermostUserId, String assignmentId, String content) {
+    public Map<String, Object> submitAssignment(String username, String mattermostUserId, String assignmentId, String content, String attachmentName, String attachmentData) {
         Long aid = parseId(assignmentId);
         if (aid == null) return Map.of("message", "assignment.not.found");
         AssignmentEntity assignment = assignmentRepository.findById(aid).orElse(null);
@@ -255,6 +255,10 @@ public class LearningContentService {
                 });
         submission.setContent(content);
         submission.setSubmittedAt(LocalDateTime.now());
+        if (attachmentName != null && !attachmentName.isBlank()) {
+            submission.setAttachmentName(attachmentName);
+            submission.setAttachmentData(attachmentData);
+        }
         submissionRepository.save(submission);
 
         return Map.of("message", "과제가 제출되었습니다.", "submission", toSubmissionMap(submission));
@@ -437,6 +441,8 @@ public class LearningContentService {
         map.put("score", s.getScore());
         map.put("feedback", s.getFeedback());
         map.put("gradedAt", s.getGradedAt() != null ? s.getGradedAt().format(DT) : null);
+        map.put("attachmentName", s.getAttachmentName() != null ? s.getAttachmentName() : "");
+        map.put("attachmentData", s.getAttachmentData() != null ? s.getAttachmentData() : "");
         return map;
     }
 
