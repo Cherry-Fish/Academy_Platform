@@ -184,7 +184,7 @@ function App() {
             </form>
           </div>
           <div className="login-card login-card-visual">
-            <img src="/images/login_illustration.png" alt="Login illustration" className="login-illustration" />
+            <img src={process.env.PUBLIC_URL + "/images/login_illustration.png"} alt="Login illustration" className="login-illustration" />
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@ function App() {
 
         <div className="login-card login-card-visual">
           <img
-            src="/images/login_illustration.png"
+            src={process.env.PUBLIC_URL + "/images/login_illustration.png"}
             alt="Login illustration"
             className="login-illustration"
           />
@@ -314,8 +314,8 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     duration: '',
   });
   const [staffAssignmentForm, setStaffAssignmentForm] = useState({
-    courseId: 'course-web',
-    courseName: '웹프로그래밍',
+    courseId: '',
+    courseName: '',
     title: '',
     description: '',
     dueDate: '',
@@ -882,14 +882,14 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     try {
       const response = await api.createVideo(staffVideoForm);
       setInfoMessage(`${response.data?.title || '영상'}이 등록되었습니다.`);
-      setStaffVideoForm({
-        courseId: 'course-web',
-        courseName: '웹프로그래밍',
+      setStaffVideoForm((prev) => ({
+        courseId: prev.courseId,
+        courseName: prev.courseName,
         title: '',
         description: '',
         videoUrl: '',
         duration: '',
-      });
+      }));
       await loadVideos();
       await loadWatchHistory();
     } catch (error) {
@@ -923,14 +923,14 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     try {
       const response = await api.createAssignment(staffAssignmentForm);
       setInfoMessage(`${response.data?.title || '과제'}가 등록되었습니다.`);
-      setStaffAssignmentForm({
-        courseId: 'course-web',
-        courseName: '웹프로그래밍',
+      setStaffAssignmentForm((prev) => ({
+        courseId: prev.courseId,
+        courseName: prev.courseName,
         title: '',
         description: '',
         dueDate: '',
         maxScore: 100,
-      });
+      }));
       await loadAssignments();
       await loadAllSubmissions();
     } catch (error) {
@@ -1394,6 +1394,8 @@ function StaffHome({
   toggleDarkMode,
 }) {
   const isAdmin = userType === 'admin';
+  const [expandedAssignmentId, setExpandedAssignmentId] = useState(null);
+  const [viewingEntry, setViewingEntry] = useState(null);
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -1980,7 +1982,9 @@ function StaffHome({
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
                 <h3 className="section-heading">강의 영상 등록</h3>
                 <div style={{ display: 'grid', gap: '12px', maxWidth: '760px' }}>
-                  <input type="text" placeholder="과목명" value={staffVideoForm.courseName} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, courseName: event.target.value }))} style={staffInputStyle} />
+                  <select value={staffVideoForm.courseId} onChange={(event) => { const course = mappedCourses.find(c => c.id === event.target.value); setStaffVideoForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value })); }} style={staffInputStyle}>
+                    {mappedCourses.map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
+                  </select>
                   <input type="text" placeholder="영상 제목" value={staffVideoForm.title} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
                   <textarea placeholder="영상 설명" value={staffVideoForm.description} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
                   <input type="text" placeholder="YouTube URL" value={staffVideoForm.videoUrl} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, videoUrl: event.target.value }))} style={staffInputStyle} />
@@ -2053,7 +2057,19 @@ function StaffHome({
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
                 <h3 className="section-heading">과제 등록</h3>
                 <div style={{ display: 'grid', gap: '12px', maxWidth: '760px' }}>
-                  <input type="text" placeholder="과목명" value={staffAssignmentForm.courseName} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, courseName: event.target.value }))} style={staffInputStyle} />
+                  <select
+                    value={staffAssignmentForm.courseId || ''}
+                    onChange={(event) => {
+                      const course = mappedCourses.find((c) => c.id === event.target.value);
+                      setStaffAssignmentForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value }));
+                    }}
+                    style={staffInputStyle}
+                  >
+                    <option value="">과목 선택</option>
+                    {mappedCourses.map((course) => (
+                      <option key={course.id} value={course.id}>{course.name}</option>
+                    ))}
+                  </select>
                   <input type="text" placeholder="과제 제목" value={staffAssignmentForm.title} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
                   <textarea placeholder="과제 설명" value={staffAssignmentForm.description} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
                   <input type="text" placeholder="마감일 예: 2026-04-07T18:00:00" value={staffAssignmentForm.dueDate} onChange={(event) => setStaffAssignmentForm((prev) => ({ ...prev, dueDate: event.target.value }))} style={staffInputStyle} />
@@ -2067,64 +2083,112 @@ function StaffHome({
               </div>
 
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
-                <h3 className="section-heading">등록된 과제</h3>
+                <h3 className="section-heading">과제 목록 & 제출 현황</h3>
                 {contentLoading ? (
                   <p className="muted-text">불러오는 중...</p>
                 ) : filteredAssignments.length === 0 ? (
                   <p className="muted-text">등록된 과제가 없습니다.</p>
                 ) : (
-                  <div style={{ display: 'grid', gap: '14px' }}>
-                    {filteredAssignments.map((assignment) => (
-                      <div key={assignment.id} className="info-card">
-                        <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{assignment.courseName}</div>
-                        <div style={{ fontSize: '20px', fontWeight: 700, color: '#1f2a37', marginBottom: '8px' }}>{assignment.title}</div>
-                        <div style={{ color: '#64748b', lineHeight: 1.6, marginBottom: '10px' }}>{assignment.description}</div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                          <div style={{ fontSize: '14px', color: '#475569' }}>마감 {assignment.dueDate} · 배점 {assignment.maxScore}점</div>
-                          <button type="button" className="ghost-button" onClick={() => onDeleteAssignment(assignment.id)}>
-                            삭제
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
-                <h3 className="section-heading">제출물 채점</h3>
-                {allSubmissions.length === 0 ? (
-                  <p className="muted-text">아직 제출된 과제가 없습니다.</p>
-                ) : (
-                  <div style={{ display: 'grid', gap: '16px' }}>
-                    {allSubmissions.map((submission) => {
-                      const gradeDraft = gradingState[submission.id] || {};
+                  <div style={{ display: 'grid', gap: '18px' }}>
+                    {filteredAssignments.map((assignment) => {
+                      const courseStudents = (studentsByCourse.find((g) => g.courseId === assignment.courseId)?.students) || [];
+                      const submissionsForAssignment = allSubmissions.filter((s) => s.assignmentId === assignment.id);
+                      const isExpanded = expandedAssignmentId === assignment.id;
                       return (
-                        <div key={submission.id} className="info-card">
-                          <div style={{ fontSize: '18px', fontWeight: 700, color: '#1f2a37', marginBottom: '8px' }}>{submission.studentName}</div>
-                          <div style={{ color: '#64748b', marginBottom: '12px' }}>제출 시각 {submission.submittedAt}</div>
-                          <div style={{ color: '#334155', lineHeight: 1.7, marginBottom: '16px', whiteSpace: 'pre-wrap' }}>{submission.content}</div>
-                          <div style={{ display: 'grid', gap: '10px', maxWidth: '520px' }}>
-                            <input
-                              type="number"
-                              placeholder="점수"
-                              value={gradeDraft.score ?? submission.score ?? ''}
-                              onChange={(event) => onGradeFieldChange(submission.id, 'score', event.target.value)}
-                              style={staffInputStyle}
-                            />
-                            <textarea
-                              rows={3}
-                              placeholder="피드백"
-                              value={gradeDraft.feedback ?? submission.feedback ?? ''}
-                              onChange={(event) => onGradeFieldChange(submission.id, 'feedback', event.target.value)}
-                              style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
-                            />
-                            <div>
-                              <button type="button" className="legacy-login-button" onClick={() => onGradeSubmission(submission.id)} disabled={actionLoading}>
-                                {actionLoading ? '저장 중...' : '채점 저장'}
+                        <div key={assignment.id} className="info-card">
+                          <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '6px' }}>{assignment.courseName}</div>
+                          <div style={{ fontSize: '20px', fontWeight: 700, color: '#1f2a37', marginBottom: '6px' }}>{assignment.title}</div>
+                          <div style={{ color: '#64748b', lineHeight: 1.6, marginBottom: '10px' }}>{assignment.description}</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+                            <div style={{ fontSize: '14px', color: '#475569' }}>마감 {assignment.dueDate} · 배점 {assignment.maxScore}점</div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                type="button"
+                                className="ghost-button"
+                                onClick={() => {
+                                  setExpandedAssignmentId(isExpanded ? null : assignment.id);
+                                  setViewingEntry(null);
+                                }}
+                              >
+                                {isExpanded ? '학생 목록 닫기' : `학생 제출 현황 (${submissionsForAssignment.length}/${courseStudents.length})`}
+                              </button>
+                              <button type="button" className="ghost-button" style={{ color: '#ef4444' }} onClick={() => onDeleteAssignment(assignment.id)}>
+                                삭제
                               </button>
                             </div>
                           </div>
+
+                          {isExpanded && (
+                            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '14px' }}>
+                              {courseStudents.length === 0 ? (
+                                <p className="muted-text" style={{ fontSize: '14px' }}>이 과목에 등록된 학생이 없습니다.</p>
+                              ) : (
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                  {courseStudents.map((student) => {
+                                    const submission = submissionsForAssignment.find((s) => s.studentName === student.displayName);
+                                    const entryKey = `${assignment.id}-${student.username}`;
+                                    const isViewing = viewingEntry === entryKey;
+                                    const gradeDraft = submission ? (gradingState[submission.id] || {}) : {};
+                                    return (
+                                      <div key={student.username}>
+                                        <div
+                                          style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px',
+                                            padding: '10px 14px', borderRadius: '10px',
+                                            background: isViewing ? '#f0f9ff' : '#f8fafc',
+                                            cursor: submission ? 'pointer' : 'default',
+                                            border: isViewing ? '1px solid #bae6fd' : '1px solid transparent',
+                                          }}
+                                          onClick={() => {
+                                            if (!submission) return;
+                                            setViewingEntry(isViewing ? null : entryKey);
+                                          }}
+                                        >
+                                          <span style={{ fontSize: '16px' }}>{submission ? '✓' : '✗'}</span>
+                                          <span style={{ fontWeight: 600, color: '#1f2a37', flex: 1 }}>{student.displayName}</span>
+                                          {submission && (
+                                            <span style={{ fontSize: '13px', color: '#64748b' }}>
+                                              {submission.score != null ? `${submission.score}점` : '미채점'} · {submission.submittedAt}
+                                            </span>
+                                          )}
+                                          {!submission && (
+                                            <span style={{ fontSize: '13px', color: '#94a3b8' }}>미제출</span>
+                                          )}
+                                        </div>
+
+                                        {isViewing && submission && (
+                                          <div style={{ margin: '8px 0 4px 0', padding: '16px', background: '#fff', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                                            <div style={{ color: '#334155', lineHeight: 1.7, marginBottom: '16px', whiteSpace: 'pre-wrap' }}>{submission.content}</div>
+                                            <div style={{ display: 'grid', gap: '10px', maxWidth: '520px' }}>
+                                              <input
+                                                type="number"
+                                                placeholder="점수"
+                                                value={gradeDraft.score ?? submission.score ?? ''}
+                                                onChange={(event) => onGradeFieldChange(submission.id, 'score', event.target.value)}
+                                                style={staffInputStyle}
+                                              />
+                                              <textarea
+                                                rows={3}
+                                                placeholder="피드백"
+                                                value={gradeDraft.feedback ?? submission.feedback ?? ''}
+                                                onChange={(event) => onGradeFieldChange(submission.id, 'feedback', event.target.value)}
+                                                style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
+                                              />
+                                              <div>
+                                                <button type="button" className="legacy-login-button" onClick={() => onGradeSubmission(submission.id)} disabled={actionLoading}>
+                                                  {actionLoading ? '저장 중...' : '채점 저장'}
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -2328,11 +2392,22 @@ function StudentHome({
                     <div style={{ borderRadius: '18px', overflow: 'hidden', background: '#0f172a' }}>
                       <iframe
                         title={selectedVideo.title}
-                        src={selectedVideo.videoUrl.replace('watch?v=', 'embed/')}
+                        src={(() => {
+                          const url = selectedVideo.videoUrl || '';
+                          if (url.includes('/embed/')) return url;
+                          const short = url.match(/youtu\.be\/([^?&]+)/);
+                          if (short) return `https://www.youtube.com/embed/${short[1]}`;
+                          const watch = url.match(/[?&]v=([^&]+)/);
+                          if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
+                          return url;
+                        })()}
                         style={{ width: '100%', height: '420px', border: 'none' }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
+                    </div>
+                    <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                      <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#6366f1' }}>YouTube에서 보기 ↗</a>
                     </div>
                   </div>
                 </div>
