@@ -486,6 +486,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
       if (activeSection === 'assignments') {
         loadAssignments();
         loadAllSubmissions();
+        loadTeacherStudents();
         return;
       }
 
