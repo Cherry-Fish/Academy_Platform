@@ -11,5 +11,6 @@ import com.jdrpsoft.academy.entity.UserEntity;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
     Optional<UserEntity> findByUsername(String username);
+    Optional<UserEntity> findByMattermostUserId(String mattermostUserId);
     List<UserEntity> findByAcademy(AcademyEntity academy);
 }

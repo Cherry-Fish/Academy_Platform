@@ -38,11 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userType = claims.get("userType", String.class);
                 String role = userType == null ? "student" : userType;
 
+                String mattermostUserId = claims.get("mattermostUserId", String.class);
                 var auth = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
                         List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                 );
+                auth.setDetails(mattermostUserId);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

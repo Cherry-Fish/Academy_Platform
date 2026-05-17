@@ -235,12 +235,14 @@ public class LearningContentService {
                 .map(this::toSubmissionMap).toList();
     }
 
-    public Map<String, Object> submitAssignment(String username, String assignmentId, String content) {
+    public Map<String, Object> submitAssignment(String username, String mattermostUserId, String assignmentId, String content) {
         Long aid = parseId(assignmentId);
         if (aid == null) return Map.of("message", "assignment.not.found");
         AssignmentEntity assignment = assignmentRepository.findById(aid).orElse(null);
         if (assignment == null) return Map.of("message", "assignment.not.found");
-        UserEntity user = userRepository.findByUsername(username).orElse(null);
+        UserEntity user = userRepository.findByUsername(username)
+                .or(() -> mattermostUserId != null ? userRepository.findByMattermostUserId(mattermostUserId) : java.util.Optional.empty())
+                .orElse(null);
         if (user == null) return Map.of("message", "user.not.found");
 
         AssignmentSubmissionEntity submission = submissionRepository

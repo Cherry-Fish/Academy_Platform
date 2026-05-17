@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,11 +62,14 @@ public class AssignmentController {
     @PostMapping("/{assignmentId}/submit")
     public ResponseEntity<Map<String, Object>> submitAssignment(
             @PathVariable String assignmentId,
-            Principal principal,
+            Authentication authentication,
             @RequestBody Map<String, Object> payload
     ) {
+        String username = authentication.getName();
+        String mattermostUserId = authentication.getDetails() instanceof String s ? s : null;
         return ResponseEntity.ok(learningContentService.submitAssignment(
-                principal.getName(),
+                username,
+                mattermostUserId,
                 assignmentId,
                 String.valueOf(payload.getOrDefault("content", ""))
         ));
