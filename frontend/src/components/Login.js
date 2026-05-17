@@ -70,7 +70,7 @@ const handleLogin = async (e) => { //디버그 용도
         </div>
         <div className="login-card login-card-visual">
           <img
-            src="/images/login_illustration.png"
+            src={process.env.PUBLIC_URL + "/images/login_illustration.png"}
             alt="Login illustration"
             className="login-illustration"
           />

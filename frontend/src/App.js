@@ -184,7 +184,7 @@ function App() {
             </form>
           </div>
           <div className="login-card login-card-visual">
-            <img src="/images/login_illustration.png" alt="Login illustration" className="login-illustration" />
+            <img src={process.env.PUBLIC_URL + "/images/login_illustration.png"} alt="Login illustration" className="login-illustration" />
           </div>
         </div>
       </div>
@@ -254,7 +254,7 @@ function App() {
 
         <div className="login-card login-card-visual">
           <img
-            src="/images/login_illustration.png"
+            src={process.env.PUBLIC_URL + "/images/login_illustration.png"}
             alt="Login illustration"
             className="login-illustration"
           />
@@ -882,14 +882,14 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     try {
       const response = await api.createVideo(staffVideoForm);
       setInfoMessage(`${response.data?.title || '영상'}이 등록되었습니다.`);
-      setStaffVideoForm({
-        courseId: 'course-web',
-        courseName: '웹프로그래밍',
+      setStaffVideoForm((prev) => ({
+        courseId: prev.courseId,
+        courseName: prev.courseName,
         title: '',
         description: '',
         videoUrl: '',
         duration: '',
-      });
+      }));
       await loadVideos();
       await loadWatchHistory();
     } catch (error) {
@@ -1980,7 +1980,9 @@ function StaffHome({
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
                 <h3 className="section-heading">강의 영상 등록</h3>
                 <div style={{ display: 'grid', gap: '12px', maxWidth: '760px' }}>
-                  <input type="text" placeholder="과목명" value={staffVideoForm.courseName} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, courseName: event.target.value }))} style={staffInputStyle} />
+                  <select value={staffVideoForm.courseId} onChange={(event) => { const course = mappedCourses.find(c => c.id === event.target.value); setStaffVideoForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value })); }} style={staffInputStyle}>
+                    {mappedCourses.map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
+                  </select>
                   <input type="text" placeholder="영상 제목" value={staffVideoForm.title} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
                   <textarea placeholder="영상 설명" value={staffVideoForm.description} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
                   <input type="text" placeholder="YouTube URL" value={staffVideoForm.videoUrl} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, videoUrl: event.target.value }))} style={staffInputStyle} />
