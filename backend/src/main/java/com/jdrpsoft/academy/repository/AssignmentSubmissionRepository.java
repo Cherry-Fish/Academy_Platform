@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,5 +29,8 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
     List<AssignmentSubmissionEntity> findAllWithDetails();
 
     void deleteByStudent(UserEntity student);
-    void deleteByAssignment(AssignmentEntity assignment);
+
+    @Modifying
+    @Query("DELETE FROM AssignmentSubmissionEntity s WHERE s.assignment.id = :assignmentId")
+    void deleteByAssignmentId(@Param("assignmentId") Long assignmentId);
 }
