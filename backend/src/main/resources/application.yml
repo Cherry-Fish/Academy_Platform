@@ -45,7 +45,7 @@ academy:
   auth:
     users:
       - username: leeminkwon
-        role: student
+        role: admin
         name: 이민권
         email: acvus@naver.com
         academyName: 스타토치 아카데미
