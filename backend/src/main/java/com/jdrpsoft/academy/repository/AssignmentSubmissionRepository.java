@@ -28,4 +28,5 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
     List<AssignmentSubmissionEntity> findAllWithDetails();
 
     void deleteByStudent(UserEntity student);
+    void deleteByAssignment(AssignmentEntity assignment);
 }

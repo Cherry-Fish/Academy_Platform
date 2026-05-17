@@ -284,7 +284,11 @@ public class LearningContentService {
 
     public void deleteAssignment(String assignmentId) {
         Long id = parseId(assignmentId);
-        if (id != null) assignmentRepository.deleteById(id);
+        if (id == null) return;
+        assignmentRepository.findById(id).ifPresent(assignment -> {
+            submissionRepository.deleteByAssignment(assignment);
+            assignmentRepository.delete(assignment);
+        });
     }
 
     public Map<String, Object> gradeSubmission(String submissionId, Integer score, String feedback) {
