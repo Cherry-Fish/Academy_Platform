@@ -241,7 +241,9 @@ public class UserDirectoryService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getStudentsByCourse(String courseCode) {
-        CourseEntity course = courseRepository.findByCode(courseCode).orElse(null);
+        CourseEntity course = (courseCode != null && !courseCode.isBlank())
+                ? courseRepository.findByCode(courseCode).orElse(null)
+                : null;
         if (course == null) return List.of();
         return enrollmentRepository.findByCourse(course).stream()
                 .filter(e -> "active".equals(e.getEnrollmentStatus()))

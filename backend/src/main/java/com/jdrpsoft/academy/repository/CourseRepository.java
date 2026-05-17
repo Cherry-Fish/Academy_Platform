@@ -10,5 +10,6 @@ import com.jdrpsoft.academy.entity.UserEntity;
 
 public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
     Optional<CourseEntity> findByCode(String code);
+    Optional<CourseEntity> findByName(String name);
     List<CourseEntity> findByTeacher(UserEntity teacher);
 }

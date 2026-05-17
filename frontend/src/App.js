@@ -1984,8 +1984,9 @@ function StaffHome({
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
                 <h3 className="section-heading">강의 영상 등록</h3>
                 <div style={{ display: 'grid', gap: '12px', maxWidth: '760px' }}>
-                  <select value={staffVideoForm.courseId} onChange={(event) => { const course = mappedCourses.find(c => c.id === event.target.value); setStaffVideoForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value })); }} style={staffInputStyle}>
-                    {mappedCourses.map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
+                  <select value={staffVideoForm.courseId} onChange={(event) => { const courseList = isAdmin ? adminCourseOptions : mappedCourses; const course = courseList.find(c => c.id === event.target.value); setStaffVideoForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value })); }} style={staffInputStyle}>
+                    <option value="">과목 선택</option>
+                    {(isAdmin ? adminCourseOptions : mappedCourses).map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
                   </select>
                   <input type="text" placeholder="영상 제목" value={staffVideoForm.title} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
                   <textarea placeholder="영상 설명" value={staffVideoForm.description} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
@@ -2062,13 +2063,14 @@ function StaffHome({
                   <select
                     value={staffAssignmentForm.courseId || ''}
                     onChange={(event) => {
-                      const course = mappedCourses.find((c) => c.id === event.target.value);
+                      const courseList = isAdmin ? adminCourseOptions : mappedCourses;
+                      const course = courseList.find((c) => c.id === event.target.value);
                       setStaffAssignmentForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value }));
                     }}
                     style={staffInputStyle}
                   >
                     <option value="">과목 선택</option>
-                    {mappedCourses.map((course) => (
+                    {(isAdmin ? adminCourseOptions : mappedCourses).map((course) => (
                       <option key={course.id} value={course.id}>{course.name}</option>
                     ))}
                   </select>
