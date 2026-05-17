@@ -2,7 +2,7 @@ spring:
   application:
     name: academy-platform-backend
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/academy}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/academy}
     username: ${DB_USERNAME:academy}
     password: ${DB_PASSWORD:academy}
     driver-class-name: org.postgresql.Driver
