@@ -1398,6 +1398,7 @@ function StaffHome({
   const [expandedAssignmentId, setExpandedAssignmentId] = useState(null);
   const [viewingEntry, setViewingEntry] = useState(null);
   const [courseStudentsCache, setCourseStudentsCache] = useState({});
+  const [courseStudentsLoading, setCourseStudentsLoading] = useState({});
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -2095,7 +2096,8 @@ function StaffHome({
                 ) : (
                   <div style={{ display: 'grid', gap: '18px' }}>
                     {filteredAssignments.map((assignment) => {
-                      const courseStudents = courseStudentsCache[assignment.courseId] || [];
+                      const cacheKey = assignment.courseId || assignment.id;
+                      const courseStudents = courseStudentsCache[cacheKey] || [];
                       const submissionsForAssignment = allSubmissions.filter((s) => s.assignmentId === assignment.id);
                       const isExpanded = expandedAssignmentId === assignment.id;
                       return (
@@ -2116,12 +2118,16 @@ function StaffHome({
                                   } else {
                                     setExpandedAssignmentId(assignment.id);
                                     setViewingEntry(null);
-                                    if (!courseStudentsCache[assignment.courseId]) {
+                                    const cacheKey = assignment.courseId || assignment.id;
+                                    if (!courseStudentsCache[cacheKey]) {
+                                      setCourseStudentsLoading((prev) => ({ ...prev, [cacheKey]: true }));
                                       try {
                                         const res = await api.getCourseStudents(assignment.courseId);
-                                        setCourseStudentsCache((prev) => ({ ...prev, [assignment.courseId]: res.data || [] }));
+                                        setCourseStudentsCache((prev) => ({ ...prev, [cacheKey]: res.data || [] }));
                                       } catch (e) {
-                                        setCourseStudentsCache((prev) => ({ ...prev, [assignment.courseId]: [] }));
+                                        setCourseStudentsCache((prev) => ({ ...prev, [cacheKey]: [] }));
+                                      } finally {
+                                        setCourseStudentsLoading((prev) => ({ ...prev, [cacheKey]: false }));
                                       }
                                     }
                                   }
@@ -2137,8 +2143,12 @@ function StaffHome({
 
                           {isExpanded && (
                             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '14px' }}>
-                              {courseStudents.length === 0 ? (
-                                <p className="muted-text" style={{ fontSize: '14px' }}>이 과목에 등록된 학생이 없습니다.</p>
+                              {courseStudentsLoading[assignment.courseId || assignment.id] ? (
+                                <p className="muted-text" style={{ fontSize: '14px' }}>학생 목록 불러오는 중...</p>
+                              ) : courseStudents.length === 0 ? (
+                                <p className="muted-text" style={{ fontSize: '14px' }}>
+                                  {!assignment.courseId ? '과목이 지정되지 않은 과제입니다. 삭제 후 다시 등록해주세요.' : '이 과목에 등록된 학생이 없습니다.'}
+                                </p>
                               ) : (
                                 <div style={{ display: 'grid', gap: '8px' }}>
                                   {courseStudents.map((student) => {
