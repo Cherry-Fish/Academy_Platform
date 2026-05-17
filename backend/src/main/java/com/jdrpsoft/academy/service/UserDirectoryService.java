@@ -76,9 +76,7 @@ public class UserDirectoryService {
         }
 
         user.setMattermostUserId(mattermostUserId);
-        if (user.getUsername() == null) {
-            user.setUsername(username);
-        }
+        user.setUsername(username);
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
