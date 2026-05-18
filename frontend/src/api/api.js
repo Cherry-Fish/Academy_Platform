@@ -93,6 +93,7 @@ const realApi = {
   getAllWatchHistory: () => apiClient.get('/videos/watch-history/all'),
   saveWatchProgress: (videoId, payload) => apiClient.post(`/videos/${videoId}/progress`, payload),
   createVideo: (payload) => apiClient.post('/videos', payload),
+  updateVideo: (videoId, payload) => apiClient.put(`/videos/${videoId}`, payload),
   deleteVideo: (videoId) => apiClient.delete(`/videos/${videoId}`),
   getAssignments: () => apiClient.get('/assignments'),
   getAssignmentById: (assignmentId) => apiClient.get(`/assignments/${assignmentId}`),

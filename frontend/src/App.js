@@ -928,6 +928,19 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     }
   };
 
+  const handleUpdateVideo = async (videoId, form) => {
+    setActionLoading(true);
+    try {
+      await api.updateVideo(videoId, form);
+      setInfoMessage('영상이 수정되었습니다.');
+      await loadVideos();
+    } catch (error) {
+      setInfoMessage(error.response?.data?.message || error.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleCreateAssignment = async () => {
     if (!staffAssignmentForm.title.trim() || !staffAssignmentForm.dueDate.trim()) {
       setInfoMessage('과제 제목과 마감일을 입력해주세요.');
@@ -1294,6 +1307,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
       onApproveRequest={handleApproveRequest}
       onRejectRequest={handleRejectRequest}
       onCreateVideo={handleCreateVideo}
+      onUpdateVideo={handleUpdateVideo}
       onDeleteVideo={handleDeleteVideo}
       onCreateAssignment={handleCreateAssignment}
       onDeleteAssignment={handleDeleteAssignment}
@@ -1375,6 +1389,7 @@ function StaffHome({
   onApproveRequest,
   onRejectRequest,
   onCreateVideo,
+  onUpdateVideo,
   onDeleteVideo,
   onCreateAssignment,
   onDeleteAssignment,
@@ -1411,6 +1426,8 @@ function StaffHome({
   const [expandedAssignmentId, setExpandedAssignmentId] = useState(null);
   const [viewingEntry, setViewingEntry] = useState(null);
   const [courseStudentsCache, setCourseStudentsCache] = useState({});
+  const [editingVideoId, setEditingVideoId] = useState(null);
+  const [editVideoForm, setEditVideoForm] = useState({});
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -2021,19 +2038,63 @@ function StaffHome({
                   <p className="muted-text">등록된 영상이 없습니다.</p>
                 ) : (
                   <div style={{ display: 'grid', gap: '14px' }}>
-                    {filteredVideos.map((video) => (
+                    {filteredVideos.map((video) => {
+                      const isEditing = editingVideoId === video.id;
+                      return (
                       <div key={video.id} className="info-card">
                         <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{video.courseName}</div>
                         <div style={{ fontSize: '20px', fontWeight: 700, color: '#1f2a37', marginBottom: '8px' }}>{video.title}</div>
                         <div style={{ color: '#64748b', lineHeight: 1.6, marginBottom: '10px' }}>{video.description}</div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                           <div style={{ fontSize: '14px', color: '#475569' }}>강사 {video.teacherName} · 재생 시간 {video.duration}</div>
-                          <button type="button" className="ghost-button" onClick={() => onDeleteVideo(video.id)}>
-                            삭제
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button type="button" className="ghost-button" onClick={() => {
+                              if (isEditing) {
+                                setEditingVideoId(null);
+                              } else {
+                                setEditingVideoId(video.id);
+                                setEditVideoForm({
+                                  courseId: video.courseId,
+                                  courseName: video.courseName,
+                                  title: video.title,
+                                  description: video.description || '',
+                                  videoUrl: video.videoUrl,
+                                  duration: video.duration,
+                                });
+                              }
+                            }}>
+                              {isEditing ? '취소' : '수정'}
+                            </button>
+                            <button type="button" className="ghost-button" style={{ color: '#ef4444' }} onClick={() => onDeleteVideo(video.id)}>
+                              삭제
+                            </button>
+                          </div>
                         </div>
+
+                        {isEditing && (
+                          <div style={{ marginTop: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '14px', display: 'grid', gap: '10px' }}>
+                            <select
+                              value={editVideoForm.courseId}
+                              onChange={(e) => { const c = (isAdmin ? adminCourseOptions : mappedCourses).find(x => x.id === e.target.value); setEditVideoForm((p) => ({ ...p, courseId: e.target.value, courseName: c?.name || e.target.value })); }}
+                              style={staffInputStyle}
+                            >
+                              <option value="">과목 선택</option>
+                              {(isAdmin ? adminCourseOptions : mappedCourses).map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
+                            </select>
+                            <input type="text" placeholder="영상 제목" value={editVideoForm.title} onChange={(e) => setEditVideoForm((p) => ({ ...p, title: e.target.value }))} style={staffInputStyle} />
+                            <textarea placeholder="영상 설명" value={editVideoForm.description} onChange={(e) => setEditVideoForm((p) => ({ ...p, description: e.target.value }))} rows={3} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
+                            <input type="text" placeholder="YouTube URL" value={editVideoForm.videoUrl} onChange={(e) => setEditVideoForm((p) => ({ ...p, videoUrl: e.target.value }))} style={staffInputStyle} />
+                            <input type="text" placeholder="재생 시간 예: 18:24" value={editVideoForm.duration} onChange={(e) => setEditVideoForm((p) => ({ ...p, duration: e.target.value }))} style={staffInputStyle} />
+                            <div>
+                              <button type="button" className="legacy-login-button" disabled={actionLoading} onClick={async () => { await onUpdateVideo(video.id, editVideoForm); setEditingVideoId(null); }}>
+                                {actionLoading ? '저장 중...' : '저장'}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

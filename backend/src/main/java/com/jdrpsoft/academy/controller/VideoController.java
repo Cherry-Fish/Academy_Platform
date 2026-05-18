@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,6 +63,16 @@ public class VideoController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createVideo(@RequestBody Map<String, Object> payload) {
         return ResponseEntity.ok(learningContentService.createVideo(payload));
+    }
+
+    @PutMapping("/{videoId}")
+    public ResponseEntity<Map<String, Object>> updateVideo(
+            @PathVariable String videoId,
+            @RequestBody Map<String, Object> payload
+    ) {
+        Map<String, Object> updated = learningContentService.updateVideo(videoId, payload);
+        if (updated == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{videoId}")

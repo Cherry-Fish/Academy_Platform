@@ -179,6 +179,24 @@ public class LearningContentService {
         return toVideoMap(video);
     }
 
+    public Map<String, Object> updateVideo(String videoId, Map<String, Object> payload) {
+        Long id = parseId(videoId);
+        if (id == null) return null;
+        VideoLectureEntity video = videoLectureRepository.findById(id).orElse(null);
+        if (video == null) return null;
+
+        if (payload.containsKey("courseId") || payload.containsKey("courseName")) {
+            CourseEntity course = findOrCreateCourse(str(payload, "courseId"), str(payload, "courseName"));
+            video.setCourse(course);
+        }
+        if (payload.containsKey("title")) video.setTitle(str(payload, "title", video.getTitle()));
+        if (payload.containsKey("description")) video.setDescription(str(payload, "description", ""));
+        if (payload.containsKey("videoUrl")) video.setVideoUrl(str(payload, "videoUrl", video.getVideoUrl()));
+        if (payload.containsKey("duration")) video.setDurationSeconds(parseDurationToSeconds(str(payload, "duration", "0:00")));
+        videoLectureRepository.save(video);
+        return toVideoMap(video);
+    }
+
     public void deleteVideo(String videoId) {
         Long id = parseId(videoId);
         if (id == null) return;
