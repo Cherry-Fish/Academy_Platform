@@ -79,7 +79,7 @@ function AssignmentDetail({ assignmentId, onBack }) {
     console.log('dueDate:', assignment?.dueDate);
     console.log('isOverdue:', isOverdue(assignment?.dueDate));
   
-    const result = !submission?.score && !isOverdue(assignment?.dueDate);
+    const result = (submission?.score === null || submission?.score === undefined) && !isOverdue(assignment?.dueDate);
     console.log('최종 결과 (제출 가능?):', result);
   
     return result;
@@ -223,22 +223,20 @@ function AssignmentDetail({ assignmentId, onBack }) {
                 </span> / {assignment.maxScore}점
               </div>
 
-              {submission.feedback && (
-                <div style={{
-                  marginTop: '15px',
-                  padding: '15px',
-                  backgroundColor: 'white',
-                  borderRadius: '5px',
-                  border: '1px solid #dee2e6'
-                }}>
-                  <strong style={{ display: 'block', marginBottom: '10px', color: '#495057' }}>
-                    강사 피드백:
-                  </strong>
-                  <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-                    {submission.feedback}
-                  </div>
+              <div style={{
+                marginTop: '15px',
+                padding: '15px',
+                backgroundColor: 'white',
+                borderRadius: '5px',
+                border: '1px solid #dee2e6'
+              }}>
+                <strong style={{ display: 'block', marginBottom: '10px', color: '#495057' }}>
+                  강사 피드백:
+                </strong>
+                <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-line', color: submission.feedback ? '#212529' : '#adb5bd', fontStyle: submission.feedback ? 'normal' : 'italic' }}>
+                  {submission.feedback || '(피드백 없음)'}
                 </div>
-              )}
+              </div>
 
               <div style={{ fontSize: '12px', color: '#6c757d', marginTop: '10px' }}>
                 채점 시간: {new Date(submission.gradedAt).toLocaleString('ko-KR')}

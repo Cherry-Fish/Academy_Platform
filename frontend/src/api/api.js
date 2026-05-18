@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 */
 
 // Mock 모드 설정 (true: Mock 사용, false: 실제 API 사용)
-const USE_MOCK_API = false;
+const USE_MOCK_API = true;
 
 //나중에 실제 서버 IP로 변경
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081/api';

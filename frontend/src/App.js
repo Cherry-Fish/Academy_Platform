@@ -2749,52 +2749,71 @@ function StudentHome({
                     </div>
 
                     {assignmentSubmission && (
-                      <div style={{ marginBottom: '18px', padding: '14px 16px', borderRadius: '16px', background: '#eff6ff', color: '#1d4ed8' }}>
-                        제출 완료: {assignmentSubmission.submittedAt}
+                      <div style={{ marginBottom: '18px', padding: '14px 16px', borderRadius: '16px', background: assignmentSubmission.score !== null && assignmentSubmission.score !== undefined ? '#d4edda' : '#eff6ff', color: assignmentSubmission.score !== null && assignmentSubmission.score !== undefined ? '#155724' : '#1d4ed8', display: 'grid', gap: '8px' }}>
+                        <div>
+                          {assignmentSubmission.score !== null && assignmentSubmission.score !== undefined ? '✓ 채점 완료' : '✓ 제출 완료'}
+                          {' '}: {new Date(assignmentSubmission.submittedAt).toLocaleString('ko-KR')}
+                        </div>
                         {assignmentSubmission.score !== null && assignmentSubmission.score !== undefined && (
-                          <span> · 점수 {assignmentSubmission.score}점</span>
+                          <div style={{ fontWeight: 700, fontSize: '16px' }}>
+                            점수: {assignmentSubmission.score} / {selectedAssignment.maxScore}점
+                          </div>
+                        )}
+                        {assignmentSubmission.score !== null && assignmentSubmission.score !== undefined && (
+                          <div style={{ marginTop: '4px', padding: '10px 12px', borderRadius: '10px', background: 'rgba(255,255,255,0.6)', color: '#212529' }}>
+                            <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '13px' }}>강사 피드백</div>
+                            <div style={{ fontSize: '14px', lineHeight: 1.6, whiteSpace: 'pre-line', color: assignmentSubmission.feedback ? '#212529' : '#6c757d', fontStyle: assignmentSubmission.feedback ? 'normal' : 'italic' }}>
+                              {assignmentSubmission.feedback || '(피드백 없음)'}
+                            </div>
+                          </div>
                         )}
                       </div>
                     )}
 
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                      <label style={{ fontWeight: 700, color: '#334155' }}>제출 내용</label>
-                      <textarea
-                        value={submissionContent}
-                        onChange={(event) => setSubmissionContent(event.target.value)}
-                        rows={10}
-                        placeholder="과제 내용을 작성하세요."
-                        style={{
-                          width: '100%',
-                          padding: '14px 16px',
-                          borderRadius: '16px',
-                          border: '1px solid #dbe4f0',
-                          resize: 'vertical',
-                          fontFamily: 'inherit',
-                          lineHeight: 1.6,
-                        }}
-                      />
-                      <div>
-                        <label style={{ fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>파일 첨부 (선택)</label>
-                        <input
-                          type="file"
-                          onChange={(e) => setSubmissionFile(e.target.files[0] || null)}
-                          style={{ fontSize: '14px' }}
-                        />
-                        {submissionFile && (
-                          <span style={{ fontSize: '13px', color: '#64748b', marginLeft: '8px' }}>{submissionFile.name}</span>
-                        )}
+                    {assignmentSubmission?.score !== null && assignmentSubmission?.score !== undefined ? (
+                      <div style={{ padding: '12px 16px', borderRadius: '12px', background: '#f8f9fa', color: '#6c757d', fontSize: '14px', textAlign: 'center' }}>
+                        채점이 완료된 과제는 수정할 수 없습니다.
                       </div>
-                      <button
-                        type="button"
-                        className="legacy-login-button"
-                        style={{ width: 'fit-content' }}
-                        onClick={onSubmitAssignment}
-                        disabled={actionLoading}
-                      >
-                        {actionLoading ? '제출 중...' : assignmentSubmission ? '다시 제출하기' : '과제 제출'}
-                      </button>
-                    </div>
+                    ) : (
+                      <div style={{ display: 'grid', gap: '12px' }}>
+                        <label style={{ fontWeight: 700, color: '#334155' }}>제출 내용</label>
+                        <textarea
+                          value={submissionContent}
+                          onChange={(event) => setSubmissionContent(event.target.value)}
+                          rows={10}
+                          placeholder="과제 내용을 작성하세요."
+                          style={{
+                            width: '100%',
+                            padding: '14px 16px',
+                            borderRadius: '16px',
+                            border: '1px solid #dbe4f0',
+                            resize: 'vertical',
+                            fontFamily: 'inherit',
+                            lineHeight: 1.6,
+                          }}
+                        />
+                        <div>
+                          <label style={{ fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>파일 첨부 (선택)</label>
+                          <input
+                            type="file"
+                            onChange={(e) => setSubmissionFile(e.target.files[0] || null)}
+                            style={{ fontSize: '14px' }}
+                          />
+                          {submissionFile && (
+                            <span style={{ fontSize: '13px', color: '#64748b', marginLeft: '8px' }}>{submissionFile.name}</span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          className="legacy-login-button"
+                          style={{ width: 'fit-content' }}
+                          onClick={onSubmitAssignment}
+                          disabled={actionLoading}
+                        >
+                          {actionLoading ? '제출 중...' : assignmentSubmission ? '다시 제출하기' : '과제 제출'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
