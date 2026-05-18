@@ -8,6 +8,7 @@ import SettingsPanel from './components/shared/SettingsPanel';
 import DateScrollPicker from './components/shared/DateScrollPicker';
 import AttendanceSection from './components/student/AttendanceSection';
 import StaffOverviewSection from './components/staff/StaffOverviewSection';
+import VideoPlayer from './components/VideoPlayer';
 
 const DEFAULT_STUDENT_COURSES = [
   { id: 'course-web', name: '웹프로그래밍', shortName: '웹', description: '프론트엔드와 React 수업 자료를 모아보는 강의방입니다.' },
@@ -2519,44 +2520,10 @@ function StudentHome({
               ) : filteredVideos.length === 0 ? (
                 <p className="muted-text">등록된 영상이 없습니다.</p>
               ) : selectedVideo ? (
-                <div style={{ display: 'grid', gap: '16px' }}>
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    style={{ width: 'fit-content', color: '#334155', borderColor: '#dbe4f0', background: '#fff' }}
-                    onClick={() => setSelectedVideo(null)}
-                  >
-                    목록으로 돌아가기
-                  </button>
-                  <div className="info-card">
-                    <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{selectedVideo.courseName}</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: '#1f2a37', marginBottom: '10px' }}>{selectedVideo.title}</div>
-                    <div style={{ color: '#64748b', lineHeight: 1.7, marginBottom: '14px' }}>{selectedVideo.description}</div>
-                    <div style={{ fontSize: '14px', color: '#475569', marginBottom: '18px' }}>
-                      강사 {selectedVideo.teacherName} · 재생 시간 {selectedVideo.duration}
-                    </div>
-                    <div style={{ borderRadius: '18px', overflow: 'hidden', background: '#0f172a' }}>
-                      <iframe
-                        title={selectedVideo.title}
-                        src={(() => {
-                          const url = selectedVideo.videoUrl || '';
-                          if (url.includes('/embed/')) return url;
-                          const short = url.match(/youtu\.be\/([^?&]+)/);
-                          if (short) return `https://www.youtube.com/embed/${short[1]}`;
-                          const watch = url.match(/[?&]v=([^&]+)/);
-                          if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
-                          return url;
-                        })()}
-                        style={{ width: '100%', height: '420px', border: 'none' }}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                    <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                      <a href={selectedVideo.videoUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#6366f1' }}>YouTube에서 보기 ↗</a>
-                    </div>
-                  </div>
-                </div>
+                <VideoPlayer
+                  videoId={selectedVideo.id}
+                  onBack={() => setSelectedVideo(null)}
+                />
               ) : (
                 <div style={{ display: 'grid', gap: '14px' }}>
                   {filteredVideos.map((video) => (
