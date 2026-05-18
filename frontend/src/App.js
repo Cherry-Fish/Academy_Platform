@@ -1428,6 +1428,7 @@ function StaffHome({
   const [courseStudentsCache, setCourseStudentsCache] = useState({});
   const [editingVideoId, setEditingVideoId] = useState(null);
   const [editVideoForm, setEditVideoForm] = useState({});
+  const [viewingVideoId, setViewingVideoId] = useState(null);
   const menuItems = isAdmin
     ? [
         { key: 'overview', label: '개요', description: '등록 사용자와 전체 운영 요약' },
@@ -2040,6 +2041,16 @@ function StaffHome({
                   <div style={{ display: 'grid', gap: '14px' }}>
                     {filteredVideos.map((video) => {
                       const isEditing = editingVideoId === video.id;
+                      const isViewing = viewingVideoId === video.id;
+                      const embedUrl = (() => {
+                        const url = video.videoUrl || '';
+                        if (url.includes('/embed/')) return url;
+                        const short = url.match(/youtu\.be\/([^?&]+)/);
+                        if (short) return `https://www.youtube.com/embed/${short[1]}`;
+                        const watch = url.match(/[?&]v=([^&]+)/);
+                        if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
+                        return url;
+                      })();
                       return (
                       <div key={video.id} className="info-card">
                         <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{video.courseName}</div>
@@ -2065,11 +2076,31 @@ function StaffHome({
                             }}>
                               {isEditing ? '취소' : '수정'}
                             </button>
+                            <button type="button" className="ghost-button" onClick={() => setViewingVideoId(isViewing ? null : video.id)}>
+                              {isViewing ? '닫기' : '보기'}
+                            </button>
                             <button type="button" className="ghost-button" style={{ color: '#ef4444' }} onClick={() => onDeleteVideo(video.id)}>
                               삭제
                             </button>
                           </div>
                         </div>
+
+                        {isViewing && (
+                          <div style={{ marginTop: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '14px' }}>
+                            <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0f172a' }}>
+                              <iframe
+                                title={video.title}
+                                src={embedUrl}
+                                style={{ width: '100%', height: '400px', border: 'none' }}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                            <div style={{ marginTop: '8px', textAlign: 'right' }}>
+                              <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#6366f1' }}>YouTube에서 보기 ↗</a>
+                            </div>
+                          </div>
+                        )}
 
                         {isEditing && (
                           <div style={{ marginTop: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '14px', display: 'grid', gap: '10px' }}>
