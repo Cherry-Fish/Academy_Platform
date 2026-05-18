@@ -1,5 +1,10 @@
 package com.jdrpsoft.academy.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,9 +13,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jdrpsoft.academy.entity.AssignmentEntity;
 import com.jdrpsoft.academy.entity.AssignmentSubmissionEntity;
@@ -34,6 +42,9 @@ import com.jdrpsoft.academy.repository.VideoProgressRepository;
 public class LearningContentService {
 
     private static final DateTimeFormatter DT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    @Value("${video.upload.dir:/opt/academy/uploads/videos}")
+    private String uploadDir;
 
     private final VideoLectureRepository videoLectureRepository;
     private final VideoProgressRepository videoProgressRepository;
@@ -195,6 +206,31 @@ public class LearningContentService {
         if (payload.containsKey("duration")) video.setDurationSeconds(parseDurationToSeconds(str(payload, "duration", "0:00")));
         videoLectureRepository.save(video);
         return toVideoMap(video);
+    }
+
+    public Map<String, Object> uploadVideo(MultipartFile file, String courseId, String courseName,
+                                           String title, String description, int durationSeconds) {
+        try {
+            Path dir = Paths.get(uploadDir);
+            Files.createDirectories(dir);
+
+            String original = file.getOriginalFilename() != null ? file.getOriginalFilename() : "video";
+            String ext = original.contains(".") ? original.substring(original.lastIndexOf(".")) : ".mp4";
+            String filename = UUID.randomUUID() + ext;
+            Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+
+            CourseEntity course = findOrCreateCourse(courseId, courseName);
+            VideoLectureEntity video = new VideoLectureEntity();
+            video.setCourse(course);
+            video.setTitle(title.isBlank() ? original : title);
+            video.setDescription(description);
+            video.setVideoUrl("/uploads/videos/" + filename);
+            video.setDurationSeconds(durationSeconds > 0 ? durationSeconds : null);
+            videoLectureRepository.save(video);
+            return toVideoMap(video);
+        } catch (IOException e) {
+            return Map.of("message", "파일 업로드 실패: " + e.getMessage());
+        }
     }
 
     public void deleteVideo(String videoId) {

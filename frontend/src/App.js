@@ -9,6 +9,7 @@ import DateScrollPicker from './components/shared/DateScrollPicker';
 import AttendanceSection from './components/student/AttendanceSection';
 import StaffOverviewSection from './components/staff/StaffOverviewSection';
 import VideoPlayer from './components/VideoPlayer';
+import DurationDetector from './components/DurationDetector';
 
 const DEFAULT_STUDENT_COURSES = [
   { id: 'course-web', name: '웹프로그래밍', shortName: '웹', description: '프론트엔드와 React 수업 자료를 모아보는 강의방입니다.' },
@@ -296,6 +297,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
   const [pendingRequests, setPendingRequests] = useState([]);
   const [teacherStudents, setTeacherStudents] = useState([]);
   const [watchHistory, setWatchHistory] = useState([]);
+  const [myWatchHistory, setMyWatchHistory] = useState({});
   const [allSubmissions, setAllSubmissions] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminUserForm, setAdminUserForm] = useState({
@@ -314,6 +316,8 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     description: '',
     videoUrl: '',
     duration: '',
+    uploadMode: 'url',
+    uploadFile: null,
   });
   const [staffAssignmentForm, setStaffAssignmentForm] = useState(() => {
     const now = new Date();
@@ -503,6 +507,9 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     if (activeSection === 'videos') {
       setSelectedAssignment(null);
       loadVideos();
+      if (userType === 'student') {
+        api.getMyWatchHistory().then((res) => setMyWatchHistory(res.data || {})).catch(() => {});
+      }
       return;
     }
 
@@ -889,14 +896,29 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
   };
 
   const handleCreateVideo = async () => {
-    if (!staffVideoForm.title.trim() || !staffVideoForm.videoUrl.trim()) {
-      setInfoMessage('영상 제목과 URL을 입력해주세요.');
-      return;
-    }
-
     setActionLoading(true);
     try {
-      const response = await api.createVideo(staffVideoForm);
+      let response;
+      if (staffVideoForm.uploadMode === 'file') {
+        if (!staffVideoForm.uploadFile) {
+          setInfoMessage('영상 파일을 선택해주세요.');
+          return;
+        }
+        const formData = new FormData();
+        formData.append('file', staffVideoForm.uploadFile);
+        formData.append('courseId', staffVideoForm.courseId);
+        formData.append('courseName', staffVideoForm.courseName);
+        formData.append('title', staffVideoForm.title);
+        formData.append('description', staffVideoForm.description);
+        formData.append('durationSeconds', staffVideoForm.durationSeconds || 0);
+        response = await api.uploadVideoFile(formData);
+      } else {
+        if (!staffVideoForm.title.trim() || !staffVideoForm.videoUrl.trim()) {
+          setInfoMessage('영상 제목과 URL을 입력해주세요.');
+          return;
+        }
+        response = await api.createVideo(staffVideoForm);
+      }
       setInfoMessage(`${response.data?.title || '영상'}이 등록되었습니다.`);
       setStaffVideoForm((prev) => ({
         courseId: prev.courseId,
@@ -905,6 +927,9 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         description: '',
         videoUrl: '',
         duration: '',
+        uploadMode: prev.uploadMode,
+        uploadFile: null,
+        durationSeconds: 0,
       }));
       await loadVideos();
       await loadWatchHistory();
@@ -1232,6 +1257,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         setSubmissionContent={setSubmissionContent}
         submissionFile={submissionFile}
         setSubmissionFile={setSubmissionFile}
+        myWatchHistory={myWatchHistory}
         infoMessage={infoMessage}
         actionLoading={actionLoading}
         contentLoading={contentLoading}
@@ -2016,14 +2042,67 @@ function StaffHome({
               <div className="dashboard-card" style={{ borderRadius: '24px', padding: '28px' }}>
                 <h3 className="section-heading">강의 영상 등록</h3>
                 <div style={{ display: 'grid', gap: '12px', maxWidth: '760px' }}>
+                  {/* 과목 선택 */}
                   <select value={staffVideoForm.courseId} onChange={(event) => { const courseList = isAdmin ? adminCourseOptions : mappedCourses; const course = courseList.find(c => c.id === event.target.value); setStaffVideoForm((prev) => ({ ...prev, courseId: event.target.value, courseName: course?.name || event.target.value })); }} style={staffInputStyle}>
                     <option value="">과목 선택</option>
                     {(isAdmin ? adminCourseOptions : mappedCourses).map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
                   </select>
                   <input type="text" placeholder="영상 제목" value={staffVideoForm.title} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, title: event.target.value }))} style={staffInputStyle} />
-                  <textarea placeholder="영상 설명" value={staffVideoForm.description} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, description: event.target.value }))} rows={4} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
-                  <input type="text" placeholder="YouTube URL" value={staffVideoForm.videoUrl} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, videoUrl: event.target.value }))} style={staffInputStyle} />
-                  <input type="text" placeholder="재생 시간 예: 18:24" value={staffVideoForm.duration} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, duration: event.target.value }))} style={staffInputStyle} />
+                  <textarea placeholder="영상 설명" value={staffVideoForm.description} onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, description: event.target.value }))} rows={3} style={{ ...staffInputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }} />
+
+                  {/* URL / 파일 모드 토글 */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {['url', 'file'].map((mode) => (
+                      <button key={mode} type="button" onClick={() => setStaffVideoForm((p) => ({ ...p, uploadMode: mode }))}
+                        style={{ padding: '6px 18px', borderRadius: '99px', border: '1px solid #dbe4f0', background: staffVideoForm.uploadMode === mode ? '#6366f1' : '#fff', color: staffVideoForm.uploadMode === mode ? '#fff' : '#334155', fontWeight: 600, cursor: 'pointer' }}>
+                        {mode === 'url' ? 'YouTube URL' : '파일 업로드'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {staffVideoForm.uploadMode === 'url' ? (
+                    <>
+                      <input type="text" placeholder="YouTube URL" value={staffVideoForm.videoUrl}
+                        onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, videoUrl: event.target.value, duration: '', durationSeconds: 0 }))}
+                        style={staffInputStyle} />
+                      {/* 자동 재생시간 감지 */}
+                      <DurationDetector
+                        url={staffVideoForm.videoUrl}
+                        onDuration={(sec) => {
+                          const m = Math.floor(sec / 60);
+                          const s = Math.floor(sec % 60);
+                          setStaffVideoForm((p) => ({ ...p, duration: `${m}:${s.toString().padStart(2, '0')}`, durationSeconds: Math.floor(sec) }));
+                        }}
+                      />
+                      <input type="text" placeholder="재생 시간 (자동 감지)" value={staffVideoForm.duration}
+                        onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, duration: event.target.value }))}
+                        style={{ ...staffInputStyle, color: staffVideoForm.duration ? '#16a34a' : undefined }} />
+                    </>
+                  ) : (
+                    <>
+                      <input type="file" accept="video/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          setStaffVideoForm((p) => ({ ...p, uploadFile: file, title: p.title || file.name }));
+                          const vid = document.createElement('video');
+                          vid.preload = 'metadata';
+                          vid.onloadedmetadata = () => {
+                            const sec = Math.floor(vid.duration);
+                            const m = Math.floor(sec / 60);
+                            const s = sec % 60;
+                            setStaffVideoForm((p) => ({ ...p, duration: `${m}:${s.toString().padStart(2, '0')}`, durationSeconds: sec }));
+                            URL.revokeObjectURL(vid.src);
+                          };
+                          vid.src = URL.createObjectURL(file);
+                        }}
+                        style={{ fontSize: '14px' }} />
+                      <input type="text" placeholder="재생 시간 (자동 감지)" value={staffVideoForm.duration || ''}
+                        onChange={(event) => setStaffVideoForm((prev) => ({ ...prev, duration: event.target.value }))}
+                        style={{ ...staffInputStyle, color: staffVideoForm.duration ? '#16a34a' : undefined }} />
+                    </>
+                  )}
+
                   <div>
                     <button type="button" className="legacy-login-button" onClick={onCreateVideo} disabled={actionLoading}>
                       {actionLoading ? '등록 중...' : '영상 등록'}
@@ -2399,6 +2478,7 @@ function StudentHome({
   setSubmissionContent,
   submissionFile,
   setSubmissionFile,
+  myWatchHistory,
   infoMessage,
   actionLoading,
   contentLoading,
@@ -2526,26 +2606,43 @@ function StudentHome({
                 />
               ) : (
                 <div style={{ display: 'grid', gap: '14px' }}>
-                  {filteredVideos.map((video) => (
+                  {filteredVideos.map((video) => {
+                    const progress = myWatchHistory[video.id] || null;
+                    const pct = progress?.percentage ?? 0;
+                    const completed = progress?.completed ?? false;
+                    return (
                     <button
                       key={video.id}
                       type="button"
                       onClick={() => onSelectVideo(video.id)}
                       style={{
                         padding: '18px',
-                        border: '1px solid #dbe4f0',
+                        border: `1px solid ${completed ? '#bbf7d0' : '#dbe4f0'}`,
                         borderRadius: '18px',
-                        background: '#f8fbff',
+                        background: completed ? '#f0fdf4' : '#f8fbff',
                         textAlign: 'left',
                         cursor: 'pointer',
                       }}
                     >
-                      <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>{video.courseName}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>{video.courseName}</div>
+                        {progress && (
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: completed ? '#16a34a' : '#6366f1', background: completed ? '#dcfce7' : '#ede9fe', padding: '2px 10px', borderRadius: '99px' }}>
+                            {completed ? '완료' : `${pct}%`}
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: '20px', fontWeight: 700, color: '#1f2a37', marginBottom: '8px' }}>{video.title}</div>
                       <div style={{ color: '#64748b', lineHeight: 1.6, marginBottom: '10px' }}>{video.description}</div>
-                      <div style={{ fontSize: '14px', color: '#475569' }}>강사 {video.teacherName} · 재생 시간 {video.duration}</div>
+                      <div style={{ fontSize: '14px', color: '#475569', marginBottom: progress ? '10px' : 0 }}>강사 {video.teacherName} · 재생 시간 {video.duration}</div>
+                      {progress && (
+                        <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '99px', overflow: 'hidden' }}>
+                          <div style={{ width: `${pct}%`, height: '100%', background: completed ? '#22c55e' : '#6366f1', borderRadius: '99px', transition: 'width 0.3s' }} />
+                        </div>
+                      )}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

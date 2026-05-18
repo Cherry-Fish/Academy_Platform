@@ -1,6 +1,10 @@
 spring:
   application:
     name: academy-platform-backend
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 2GB
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/academy}
     username: ${DB_USERNAME:academy}
@@ -40,6 +44,10 @@ security:
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+
+video:
+  upload:
+    dir: ${VIDEO_UPLOAD_DIR:/opt/academy/uploads/videos}
 
 academy:
   auth:

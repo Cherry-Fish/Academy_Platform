@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jdrpsoft.academy.service.LearningContentService;
 
@@ -63,6 +65,18 @@ public class VideoController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> createVideo(@RequestBody Map<String, Object> payload) {
         return ResponseEntity.ok(learningContentService.createVideo(payload));
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<Map<String, Object>> uploadVideo(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(defaultValue = "") String courseId,
+            @RequestParam(defaultValue = "") String courseName,
+            @RequestParam(defaultValue = "") String title,
+            @RequestParam(defaultValue = "") String description,
+            @RequestParam(defaultValue = "0") int durationSeconds
+    ) {
+        return ResponseEntity.ok(learningContentService.uploadVideo(file, courseId, courseName, title, description, durationSeconds));
     }
 
     @PutMapping("/{videoId}")

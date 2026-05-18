@@ -93,6 +93,10 @@ const realApi = {
   getAllWatchHistory: () => apiClient.get('/videos/watch-history/all'),
   saveWatchProgress: (videoId, payload) => apiClient.post(`/videos/${videoId}/progress`, payload),
   createVideo: (payload) => apiClient.post('/videos', payload),
+  uploadVideoFile: (formData) => apiClient.post('/videos/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 300000,
+  }),
   updateVideo: (videoId, payload) => apiClient.put(`/videos/${videoId}`, payload),
   deleteVideo: (videoId) => apiClient.delete(`/videos/${videoId}`),
   getAssignments: () => apiClient.get('/assignments'),
