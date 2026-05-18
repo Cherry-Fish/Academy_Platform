@@ -668,7 +668,11 @@ export const mockApi = {
     await delay();
     mockData = loadMockData();
     const currentUser = getCurrentUser();
-    return { data: mockData.submissions.find(s => s.assignmentId === parseInt(assignmentId) && s.studentId === currentUser.userId) || null };
+    const submission = mockData.submissions.find(s => s.assignmentId === parseInt(assignmentId) && s.studentId === currentUser.userId) || null;
+    if (submission && submission.score !== null && submission.score !== undefined) {
+      submission.score = Number(submission.score);
+    }
+    return { data: submission };
   },
 
   getAllSubmissions: async (assignmentId) => {
@@ -684,8 +688,8 @@ export const mockApi = {
     mockData = loadMockData();
     const submission = mockData.submissions.find(s => s.id === parseInt(submissionId));
     if (!submission) throw new Error('제출물을 찾을 수 없습니다.');
-    submission.score = gradeData.score;
-    submission.feedback = gradeData.feedback;
+    submission.score = Number(gradeData.score);
+    submission.feedback = gradeData.feedback || null;
     submission.gradedAt = new Date().toISOString();
     saveMockData(mockData);
     return { data: { success: true, message: '채점이 완료되었습니다.', submission, studentName: submission.studentName } };
