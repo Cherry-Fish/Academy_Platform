@@ -1802,17 +1802,17 @@ function StaffHome({
                 ) : (
                   <div style={{ display: 'grid', gap: '18px' }}>
                     {filteredStudentsByCourse.map((group) => (
-                      <div key={group.courseId} style={{ padding: '18px', borderRadius: '18px', border: '1px solid #dbe4f0', background: '#f8fbff' }}>
-                        <div style={{ fontSize: '20px', fontWeight: 700, color: '#1f2a37', marginBottom: '12px' }}>{group.courseName}</div>
+                      <div key={group.courseId} style={{ padding: '18px', borderRadius: '18px', border: `1px solid ${isDarkMode ? '#2d3748' : '#dbe4f0'}`, background: isDarkMode ? '#1a2236' : '#f8fbff' }}>
+                        <div style={{ fontSize: '20px', fontWeight: 700, color: isDarkMode ? '#e2e8f0' : '#1f2a37', marginBottom: '12px' }}>{group.courseName}</div>
                         <div style={{ display: 'grid', gap: '12px' }}>
                           {group.students.map((student) => (
-                            <div key={`${group.courseId}-${student.username}`} style={{ padding: '14px 16px', borderRadius: '16px', background: 'white', border: '1px solid #e2e8f0' }}>
+                            <div key={`${group.courseId}-${student.username}`} style={{ padding: '14px 16px', borderRadius: '16px', background: isDarkMode ? '#1e2533' : 'white', border: `1px solid ${isDarkMode ? '#2d3748' : '#e2e8f0'}` }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                                 <div>
-                                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#1f2a37' }}>{student.displayName}</div>
-                                  <div style={{ color: '#64748b', marginTop: '4px' }}>{student.username} · {student.email}</div>
+                                  <div style={{ fontSize: '18px', fontWeight: 700, color: isDarkMode ? '#e2e8f0' : '#1f2a37' }}>{student.displayName}</div>
+                                  <div style={{ color: isDarkMode ? '#94a3b8' : '#64748b', marginTop: '4px' }}>{student.username} · {student.email}</div>
                                 </div>
-                                <div style={{ color: '#475569', fontSize: '14px' }}>{student.academyName}</div>
+                                <div style={{ color: isDarkMode ? '#94a3b8' : '#475569', fontSize: '14px' }}>{student.academyName}</div>
                               </div>
                               {(student.schedules || []).length > 0 ? (
                                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
@@ -1977,6 +1977,7 @@ function StaffHome({
                     month={offlineMonth.month}
                     offlineClasses={filteredOfflineClasses}
                     onEditOfflineClass={onEditOfflineClass}
+                    isDarkMode={isDarkMode}
                   />
                 )}
               </div>
@@ -2682,6 +2683,7 @@ function StudentHome({
                       month={offlineMonth.month}
                       offlineClasses={filteredOfflineClasses}
                       selectable={false}
+                      isDarkMode={isDarkMode}
                     />
 
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '18px 0 20px' }}>
@@ -2933,7 +2935,7 @@ function LegendItem({ color, border, label }) {
   );
 }
 
-function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass, selectable = true }) {
+function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass, selectable = true, isDarkMode = false }) {
   const firstDay = new Date(year, month - 1, 1);
   const lastDate = new Date(year, month, 0).getDate();
   const startOffset = firstDay.getDay();
@@ -2944,6 +2946,16 @@ function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass,
     return accumulator;
   }, {});
   const cells = [];
+
+  const cellBgEmpty = isDarkMode ? '#1e2533' : '#ffffff';
+  const cellBgFilled = isDarkMode ? '#1a2236' : '#f8fbff';
+  const cellBorder = isDarkMode ? '#2d3748' : '#dbe4f0';
+  const dayColor = isDarkMode ? '#94a3b8' : '#334155';
+  const headerColor = isDarkMode ? '#64748b' : '#64748b';
+  const eventBgNormal = isDarkMode ? '#2d3561' : '#eef2ff';
+  const eventColorNormal = isDarkMode ? '#a5b4fc' : '#4338ca';
+  const eventBgOverride = isDarkMode ? '#3d2012' : '#fff7ed';
+  const eventColorOverride = isDarkMode ? '#fb923c' : '#c2410c';
 
   for (let index = 0; index < startOffset; index += 1) {
     cells.push(<div key={`offline-blank-${index}`} style={{ minHeight: '120px' }} />);
@@ -2958,15 +2970,15 @@ function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass,
         style={{
           minHeight: '120px',
           borderRadius: '18px',
-          border: '1px solid #dbe4f0',
-          background: items.length > 0 ? '#f8fbff' : '#ffffff',
+          border: `1px solid ${cellBorder}`,
+          background: items.length > 0 ? cellBgFilled : cellBgEmpty,
           padding: '12px',
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
         }}
       >
-        <div style={{ fontWeight: 700, color: '#334155' }}>{day}</div>
+        <div style={{ fontWeight: 700, color: dayColor }}>{day}</div>
         <div style={{ display: 'grid', gap: '6px' }}>
           {items.map((item) => (
             <button
@@ -2977,8 +2989,8 @@ function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass,
               style={{
                 textAlign: 'left',
                 border: 'none',
-                background: item.isOverride ? '#fff7ed' : '#eef2ff',
-                color: item.isOverride ? '#c2410c' : '#4338ca',
+                background: item.isOverride ? eventBgOverride : eventBgNormal,
+                color: item.isOverride ? eventColorOverride : eventColorNormal,
                 borderRadius: '12px',
                 padding: '8px 10px',
                 cursor: selectable ? 'pointer' : 'default',
@@ -2998,7 +3010,7 @@ function OfflineClassCalendar({ year, month, offlineClasses, onEditOfflineClass,
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: '10px', marginBottom: '10px' }}>
         {['일', '월', '화', '수', '목', '금', '토'].map((label) => (
-          <div key={label} style={{ textAlign: 'center', fontWeight: 700, color: '#64748b', paddingBottom: '4px' }}>
+          <div key={label} style={{ textAlign: 'center', fontWeight: 700, color: headerColor, paddingBottom: '4px' }}>
             {label}
           </div>
         ))}
