@@ -47,7 +47,7 @@ public class AdminController {
     @PostMapping("/invitations")
     public ResponseEntity<?> createInvitation(@RequestBody Map<String, Object> body) {
         String role = String.valueOf(body.getOrDefault("role", "student"));
-        String academyName = String.valueOf(body.getOrDefault("academyName", "스타토치 아카데미"));
+        String academyName = String.valueOf(body.getOrDefault("academyName", "민트학원"));
         String expiresAtStr = body.get("expiresAt") != null ? String.valueOf(body.get("expiresAt")) : null;
         LocalDateTime expiresAt = (expiresAtStr != null && !expiresAtStr.isBlank())
                 ? LocalDateTime.parse(expiresAtStr) : null;

@@ -306,7 +306,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     name: '',
     email: '',
     password: '',
-    academyName: academyName || '스타토치 아카데미',
+    academyName: academyName || '민트학원',
     courseIds: [],
   });
   const [staffVideoForm, setStaffVideoForm] = useState({
@@ -534,7 +534,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
   }, [userType, activeSection, attendanceMonth.year, attendanceMonth.month, offlineMonth.year, offlineMonth.month]);
 
   const [invitations, setInvitations] = useState([]);
-  const [inviteForm, setInviteForm] = useState({ role: 'student', academyName: academyName || '스타토치 아카데미', expiresAt: new Date().toISOString().slice(0, 10) });
+  const [inviteForm, setInviteForm] = useState({ role: 'student', academyName: academyName || '민트학원', expiresAt: new Date().toISOString().slice(0, 10) });
 
   const loadInvitations = async () => {
     try {
@@ -548,7 +548,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
     try {
       const payload = {
         role: inviteForm.role,
-        academyName: inviteForm.academyName || '스타토치 아카데미',
+        academyName: inviteForm.academyName || '민트학원',
         expiresAt: inviteForm.expiresAt ? `${inviteForm.expiresAt}T23:59:59` : null,
       };
       const response = await api.createInvitation(payload);
@@ -1144,7 +1144,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
       name: user.displayName || '',
       role: (user.role || 'student').toLowerCase(),
       email: user.email || '',
-      academyName: user.academyName || academyName || '스타토치 아카데미',
+      academyName: user.academyName || academyName || '민트학원',
       courseIds: (user.courses || []).map((c) => c.courseId),
     });
   };
@@ -1157,7 +1157,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         role: editForm.role,
         name: editForm.name.trim(),
         email: editForm.email.trim(),
-        academyName: editForm.academyName.trim() || '스타토치 아카데미',
+        academyName: editForm.academyName.trim() || '민트학원',
         courses: availableCourseOptions
           .filter((c) => editForm.courseIds.includes(c.id))
           .map((c) => ({ courseId: c.id, courseName: c.name })),
@@ -1201,7 +1201,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         name: adminUserForm.name.trim(),
         email: adminUserForm.email.trim(),
         password: adminUserForm.password.trim() || undefined,
-        academyName: adminUserForm.academyName.trim() || '스타토치 아카데미',
+        academyName: adminUserForm.academyName.trim() || '민트학원',
         courses: availableCourseOptions
           .filter((course) => adminUserForm.courseIds.includes(course.id))
           .map((course) => ({
@@ -1218,7 +1218,7 @@ function BasicHome({ username, displayName, setDisplayName, email, setEmail, use
         name: '',
         email: '',
         password: '',
-        academyName: academyName || '스타토치 아카데미',
+        academyName: academyName || '민트학원',
         courseIds: [],
       });
       await loadAdminUsers();
