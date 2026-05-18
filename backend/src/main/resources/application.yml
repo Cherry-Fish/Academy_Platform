@@ -56,7 +56,7 @@ academy:
         role: admin
         name: 이민권
         email: acvus@naver.com
-        academyName: 민트학원
+        academyName: 스타토치
         courses:
           - courseId: course-java
             courseName: Java 기초반
@@ -79,7 +79,7 @@ academy:
         role: student
         name: 김민지
         email: minji@example.com
-        academyName: 민트학원
+        academyName: 스타토치
         courses:
           - courseId: course-java
             courseName: Java 기초반
@@ -94,7 +94,7 @@ academy:
         role: student
         name: 박도현
         email: dohyun@example.com
-        academyName: 민트학원
+        academyName: 스타토치
         courses:
           - courseId: course-web
             courseName: 웹프로그래밍
@@ -117,7 +117,7 @@ academy:
         role: student
         name: 이수진
         email: sujin@example.com
-        academyName: 민트학원
+        academyName: 스타토치
         courses:
           - courseId: course-web
             courseName: 웹프로그래밍
